@@ -1,8 +1,8 @@
-import { ChangeEvent, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { GenericGraphEdge, GenericGraphVertex } from "@/graph/GenericGraph";
 import GraphError from "@/graph/GraphError";
-import { iterateFindFirst } from "@/graph/FunctionalIterable";
 import Edge from "@/graph/Edge";
+import VertexSelector from "./VertexSelector";
 
 export type EdgeSelection = [string, string];
 
@@ -43,32 +43,18 @@ const AddEdgeDialog: React.FC<AddEdgeDialogProps> = ({ vertices, selection, setS
 		}
 	};
 
-	const onVertexChange = (selection_id: number, event: ChangeEvent<HTMLSelectElement>) => {
+	const onVertexChange = (selection_id: number, new_selection: string) => {
 		setSelection(
 			selection_id == 0
-				? [event.target.value, selection[1]]
-				: [selection[0], event.target.value]
+				? [new_selection, selection[1]]
+				: [selection[0], new_selection]
 		)
 	}
 
 	return <div className="flex flex-col justify-start p-1 border-black border rounded">
 		<div className="flex flex-row justify-stretch">
-			<select value={selection[0]} onChange={v => onVertexChange(0, v)}>
-				<option value="null">select edge</option>
-				{
-					vertices.map(v =>
-						<option key={v.identifier} value={v.identifier}>{v.toString()}</option>
-					)
-				}
-			</select>
-			<select value={selection[1]} onChange={v => onVertexChange(1, v)}>
-				<option value="null">select edge</option>
-				{
-					vertices.map(v =>
-						<option key={v.identifier} value={v.identifier}>{v.toString()}</option>
-					)
-				}
-			</select>
+			<VertexSelector vertices={vertices} value={selection[0]} setValue={v => onVertexChange(0, v)} />
+			<VertexSelector vertices={vertices} value={selection[1]} setValue={v => onVertexChange(1, v)} />
 			<button onClick={onAdd}>Add edge</button>
 		</div>
 		<span className="inline-block text-red-700" hidden={isErrorHidden}>{error}</span>

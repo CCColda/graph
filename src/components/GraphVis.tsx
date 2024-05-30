@@ -26,17 +26,53 @@ const GraphVis = <S extends GenericGraphStorage>(props: React.PropsWithChildren<
 
 	const visNetworkEdges = useMemo(
 		() => {
-			return new DataSet(Array.from(
-				iterateMap(
-					props.graph.edges.entries(),
-					v => Array.from(
-						iterateMap(
-							v[1].values(),
-							w => ({ id: w.identifier, from: w.vertices[0].identifier, to: w.vertices[1].identifier })
+			if (props.graph.props.directed) {
+				return new DataSet(Array.from(
+					iterateMap(
+						props.graph.edges.entries(),
+						v => Array.from(
+							iterateMap(
+								v[1].values(),
+								w => ({
+									id: w.identifier,
+									from: w.vertices[0].identifier,
+									to: w.vertices[1].identifier,
+									arrows: { to: true }
+								})
+							)
 						)
 					)
-				)
-			).flat());
+				).flat());
+			}
+			else {
+				const edges = Array.from(
+					iterateMap(
+						props.graph.edges.entries(),
+						v => Array.from(
+							iterateMap(
+								v[1].values(),
+								w => ({
+									id: w.identifier,
+									from: w.vertices[0].identifier,
+									to: w.vertices[1].identifier,
+									arrows: { to: true, from: true }
+								})
+							)
+						)
+					)
+				).flat();
+
+				// ew
+				let filteredEdges = edges;
+				for (const edge of filteredEdges) {
+					const twinIdx = filteredEdges.findIndex(v => v.from == edge.to && v.to == edge.from);
+					if (twinIdx != -1) {
+						filteredEdges.splice(twinIdx, 1);
+					}
+				}
+
+				return new DataSet(filteredEdges);
+			}
 		},
 		[props.graph.vertices, props.graph.edges]
 	);

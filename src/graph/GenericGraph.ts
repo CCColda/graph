@@ -108,6 +108,9 @@ export class GenericGraph<S extends GenericGraphStorage> {
 			}
 
 			this.storage.addEdge(edge)
+			if (!this.props.directed) {
+				this.storage.addEdge(edge.flipped);
+			}
 		}
 		else {
 			throw new GraphError(`Cannot add ${edge}; the graph doesn't have some of its points [${vtx1.identifier} or ${vtx2.identifier}]`);
@@ -146,5 +149,13 @@ export class GenericGraph<S extends GenericGraphStorage> {
 		}
 
 		return null;
+	}
+
+	getOutgoingEdges(id: GraphVertexID) {
+		return this.edges.get(id) ?? [];
+	}
+
+	getNeighbors(id: GraphVertexID) {
+		return this.getOutgoingEdges(id).map(v => v.vertices[1]);
 	}
 };

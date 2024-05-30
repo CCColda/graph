@@ -8,6 +8,8 @@ import { useEffect, useMemo, useState } from "react";
 import useReactiveGraphStorage from "@/graph/useReactiveGraphStorage";
 import LocalGraphStorage from "@/graph/LocalGraphStorage";
 import AddEdgeDialog, { EdgeSelection } from "@/components/AddEdgeDialog";
+import VertexSelector from "@/components/VertexSelector";
+import BFS from "@/graph/BFS";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -55,11 +57,25 @@ export default function Home() {
     graph.storage.migrateFrom(localGraph.storage);
   }, []);
 
-  const runBfs = () => {
+  const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
+  const runBfs = async () => {
+    let iterable = BFS(graph, graph.getVertexByIdentifier(bfsStartVertex)!);
+    let result = iterable.next();
+
+    while (!result.done) {
+      console.debug(result.value.distance);
+      console.debug(result.value.previous);
+      bfsGraph.storage.migrateFrom(result.value.graph.storage);
+
+      await wait(5000);
+
+      result = iterable.next();
+    }
   };
 
   const bfsHidden = useMemo(() => bfsGraph.storage.verticesAsList.length == 0, [bfsGraph]);
+  const [bfsStartVertex, setBfsStartVertex] = useState("null");
 
   const [edgeSelection, setEdgeSelection] = useState<EdgeSelection>([null, null]);
 
@@ -76,6 +92,7 @@ export default function Home() {
           setSelection={setEdgeSelection}
           addEdge={v => graph.addEdge(v)} />
         <div className="flex flex-row justify-start">
+          <VertexSelector vertices={graph.storage.verticesAsList} value={bfsStartVertex} setValue={setBfsStartVertex} />
           <button onClick={_ => runBfs()}>Run BFS</button>
         </div>
       </div>
