@@ -1,15 +1,18 @@
 import { Inter } from "next/font/google";
 import GraphVis from "@/components/GraphVis";
-import { GenericGraph } from "@/graph/GenericGraph";
+import { GenericGraph, GenericGraphVertex } from "@/graph/GenericGraph";
 import Vertex from "@/graph/Vertex";
 import Edge from "@/graph/Edge";
 import AddVertexDialog from "@/components/AddVertexDialog";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import useReactiveGraphStorage from "@/graph/useReactiveGraphStorage";
 import LocalGraphStorage from "@/graph/LocalGraphStorage";
 import AddEdgeDialog, { EdgeSelection } from "@/components/AddEdgeDialog";
-import VertexSelector from "@/components/VertexSelector";
-import BFS from "@/graph/BFS";
+import BFS, { BFSResult } from "@/graph/BFS";
+import BFSVis from "@/components/BFSVis";
+import GraphGuard from "@/components/GraphGuard";
+import RunBFSDialog from "@/components/RunBFSDialog";
+import FullBFS from "@/graph/FullBFS";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -54,30 +57,50 @@ export default function Home() {
       console.debug(localGraph);
     }
 
-    graph.storage.migrateFrom(localGraph.storage);
+    graph.cloneFrom(localGraph);
   }, []);
 
   const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
-  const runBfs = async () => {
-    let iterable = BFS(graph, graph.getVertexByIdentifier(bfsStartVertex)!);
-    let result = iterable.next();
+  const [bfsIterable, setBfsIterable] = useState<IterableIterator<BFSResult> | null>(null);
+  const [bfsDone, setBfsDone] = useState(false);
+  const [bfsResult, setBfsResult] = useState<BFSResult | null>(null);;
 
-    while (!result.done) {
-      console.debug(result.value.distance);
-      console.debug(result.value.previous);
-      bfsGraph.storage.migrateFrom(result.value.graph.storage);
+  const runBfs = (startVertex: GenericGraphVertex) => {
+    const iterable = BFS(graph, startVertex);
 
-      await wait(5000);
+    const next = iterable.next();
 
-      result = iterable.next();
+    bfsGraph.cloneFrom(next.value.graph);
+    setBfsIterable(iterable);
+    setBfsResult(next.value);
+    setBfsDone(!!next.done);
+  }
+
+  const runFullBfs = () => {
+    const iterable = FullBFS(graph);
+
+    const next = iterable.next();
+
+    bfsGraph.cloneFrom(next.value.graph);
+    setBfsIterable(iterable);
+    setBfsResult(next.value);
+    setBfsDone(!!next.done);
+  }
+
+  const stepBfs = () => {
+    if (bfsIterable != null && !bfsDone) {
+      const next = bfsIterable.next();
+
+      setBfsDone(!!next.done);
+      if (!next.done) {
+        bfsGraph.cloneFrom(next.value.graph);
+        setBfsResult(next.value);
+      }
     }
-  };
+  }
 
-  const bfsHidden = useMemo(() => bfsGraph.storage.verticesAsList.length == 0, [bfsGraph]);
-  const [bfsStartVertex, setBfsStartVertex] = useState("null");
-
-  const [edgeSelection, setEdgeSelection] = useState<EdgeSelection>([null, null]);
+  const [edgeSelection, setEdgeSelection] = useState<EdgeSelection>(["null", "null"]);
 
   return (
     <main className="w-full h-full flex flex-row justify-start align-stretch">
@@ -91,15 +114,21 @@ export default function Home() {
           selection={edgeSelection}
           setSelection={setEdgeSelection}
           addEdge={v => graph.addEdge(v)} />
+        <RunBFSDialog
+          vertices={graph.storage.verticesAsList}
+          runBfs={runBfs}
+        />
         <div className="flex flex-row justify-start">
-          <VertexSelector vertices={graph.storage.verticesAsList} value={bfsStartVertex} setValue={setBfsStartVertex} />
-          <button onClick={_ => runBfs()}>Run BFS</button>
+          <button onClick={_ => runFullBfs()}>Full BFS</button>
+        </div>
+        <div className="flex flex-row justify-start">
+          <button onClick={_ => graph.invert((v1, v2) => new Edge(v1, v2))}>Invert</button>
         </div>
       </div>
       <GraphVis graph={graph} />
-      <div className="w-full h-full" hidden={bfsHidden}>
-        <GraphVis graph={bfsGraph} />
-      </div>
+      <GraphGuard graph={bfsGraph}>
+        <BFSVis graph={bfsGraph} bfsResult={bfsResult!} step={stepBfs} canStep={!bfsDone} />
+      </GraphGuard>
     </main>
   );
 }

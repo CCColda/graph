@@ -5,14 +5,16 @@ export default class Vertex implements GenericGraphVertex {
 	public readonly name: string
 	public chroma: number = 0
 	public weight: number = 0
+	public displayProps: object
 
-	constructor(name: string) {
+	constructor(name: string, displayProps: object = {}) {
 		this.name = name
 		this.id = name
+		this.displayProps = displayProps
 	}
 
 	deepCopy(): GenericGraphVertex {
-		return new Vertex(`${this.name}`)
+		return new Vertex(`${this.name}`, this.displayProps)
 	}
 
 	get identifier(): string {

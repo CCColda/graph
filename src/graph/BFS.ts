@@ -3,7 +3,7 @@ import { GenericGraph, GenericGraphStorage, GenericGraphVertex, GraphVertexID } 
 import LocalGraphStorage from "./LocalGraphStorage";
 import Vertex from "./Vertex";
 
-type BFSResult = {
+export type BFSResult = {
 	distance: Map<GraphVertexID, number>;
 	previous: Map<GraphVertexID, GraphVertexID>;
 	graph: GenericGraph<LocalGraphStorage>;
@@ -22,7 +22,7 @@ export default function* BFS<S extends GenericGraphStorage>(
 
 	const activeVertices = [startingVertex];
 
-	result.graph.addVertex(new Vertex(startingVertex.identifier));
+	result.graph.addVertex(new Vertex(startingVertex.identifier, { color: "red" }));
 
 	while (activeVertices.length != 0) {
 		const activeVertex = activeVertices[0];
@@ -48,5 +48,5 @@ export default function* BFS<S extends GenericGraphStorage>(
 
 		yield result;
 	}
-
+	return;
 }

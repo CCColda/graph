@@ -9,9 +9,11 @@ export default class Edge implements GenericGraphEdge {
 	public flow: number = 0
 	public flow_capacity = 0
 	public weight: number = 0
+	public displayProps: object
 
-	constructor(v1: GenericGraphVertex, v2: GenericGraphVertex, id?: string) {
+	constructor(v1: GenericGraphVertex, v2: GenericGraphVertex, id?: string, displayProps: object = {}) {
 		this.vertices = [v1, v2]
+		this.displayProps = displayProps
 
 		if (id) {
 			this.id = id;

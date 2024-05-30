@@ -16,6 +16,21 @@ export function iterateHead<T>(
 	return output;
 }
 
+export function iterateForEach<T>(
+	iterable: IterableIterator<T>,
+	callback: (value: T, index: number) => any
+) {
+	let index = 0;
+	let result = iterable.next();
+
+	while (!result.done) {
+		callback(result.value, index);
+
+		index++;
+		result = iterable.next();
+	}
+}
+
 export function* iterateMap<T, R>(
 	iterable: IterableIterator<T>,
 	transform: (value: T, index: number) => R

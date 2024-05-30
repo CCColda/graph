@@ -17,7 +17,7 @@ const GraphVis = <S extends GenericGraphStorage>(props: React.PropsWithChildren<
 			return new DataSet(Array.from(
 				iterateMap(
 					props.graph.vertices.values(),
-					v => ({ id: v.identifier, label: v.toString() })
+					v => ({ id: v.identifier, label: v.toString(), ...v.displayProps })
 				)
 			));
 		},
@@ -37,7 +37,8 @@ const GraphVis = <S extends GenericGraphStorage>(props: React.PropsWithChildren<
 									id: w.identifier,
 									from: w.vertices[0].identifier,
 									to: w.vertices[1].identifier,
-									arrows: { to: true }
+									arrows: { to: true },
+									...w.displayProps
 								})
 							)
 						)
@@ -54,8 +55,7 @@ const GraphVis = <S extends GenericGraphStorage>(props: React.PropsWithChildren<
 								w => ({
 									id: w.identifier,
 									from: w.vertices[0].identifier,
-									to: w.vertices[1].identifier,
-									arrows: { to: true, from: true }
+									to: w.vertices[1].identifier
 								})
 							)
 						)

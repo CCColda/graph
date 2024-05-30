@@ -41,11 +41,13 @@ export default class ReactiveGraphStorage
 			const vtx1 = edge.vertices[0].identifier;
 			const copyAndAddEdgeIfNeeded = (v: ReactiveEdgeList): ReactiveEdgeList => {
 				return v[0] == vtx1
-					? ([v[0], [...v[1].map(w => w.deepCopy()), edge]])
-					: ([v[0], v[1].map(w => w.deepCopy())])
+					? ([`${v[0]}`, [...v[1].map(w => w.deepCopy()), edge]])
+					: ([`${v[0]}`, v[1].map(w => w.deepCopy())])
 			};
 
-			return [...old.map(v => copyAndAddEdgeIfNeeded(v))]
+			const newEdges = [...old.map(v => copyAndAddEdgeIfNeeded(v))]
+
+			return newEdges
 		});
 	}
 
@@ -60,13 +62,19 @@ export default class ReactiveGraphStorage
 	setEmptyEdgesFor(vertex: GenericGraphVertex): void {
 		this.rSetEdges(old => {
 			const vtx1 = vertex.identifier;
-			const copyAndSetEmptyIfNeeded = (v: ReactiveEdgeList): ReactiveEdgeList => {
-				return v[0] == vtx1
-					? ([v[0], []])
-					: ([v[0], v[1].map(w => w.deepCopy())])
-			};
 
-			return [...old.map(v => copyAndSetEmptyIfNeeded(v))]
+			if (old.some(v => v[0] == vtx1)) {
+				const copyAndSetEmptyIfNeeded = (v: ReactiveEdgeList): ReactiveEdgeList => {
+					return v[0] == vtx1
+						? ([`${v[0]}`, []])
+						: ([`${v[0]}`, v[1].map(w => w.deepCopy())])
+				};
+
+				return [...old.map(v => copyAndSetEmptyIfNeeded(v))]
+			}
+			else {
+				return [...old.map(v => ([`${v[0]}`, v[1].map(w => w.deepCopy())])), [vtx1, []]] as [GraphVertexID, GenericGraphEdge[]][];
+			}
 		});
 	}
 
@@ -88,7 +96,7 @@ export default class ReactiveGraphStorage
 	}
 
 	get edgesAsList(): [GraphVertexID, GenericGraphEdge[]][] {
-		return this.edgesAsList
+		return this.rEdges
 	}
 
 	migrateFrom(storage: GenericGraphStorage): void {

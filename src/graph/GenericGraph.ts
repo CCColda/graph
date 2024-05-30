@@ -14,6 +14,8 @@ export interface GenericGraphVertex {
 
 	get chroma(): number;
 	set chroma(chroma: number);
+
+	get displayProps(): object
 }
 
 export interface GenericGraphEdge {
@@ -33,6 +35,8 @@ export interface GenericGraphEdge {
 
 	get chroma(): number;
 	set chroma(chroma: number);
+
+	get displayProps(): object
 }
 
 export interface GenericGraphStorage {
@@ -115,6 +119,64 @@ export class GenericGraph<S extends GenericGraphStorage> {
 		else {
 			throw new GraphError(`Cannot add ${edge}; the graph doesn't have some of its points [${vtx1.identifier} or ${vtx2.identifier}]`);
 		}
+	}
+
+	invert(edgeFactory: (vtx1: GenericGraphVertex, vtx2: GenericGraphVertex) => GenericGraphEdge) {
+		const newEdgeList = this.storage.edgesAsList.map(([vtxID, e]) => {
+			let edgeList: GenericGraphEdge[] = [];
+			const vtx = this.getVertexByIdentifier(vtxID)!;
+
+			for (const vertex of this.storage.verticesAsList) {
+				if (!e.some(v => v.vertices[1] == vertex)) {
+					edgeList.push(edgeFactory(vtx, vertex));
+				}
+			}
+
+			return [vtxID, edgeList] as [GraphVertexID, GenericGraphEdge[]];
+		});
+
+		this.storage.set(
+			this.storage.verticesAsList,
+			newEdgeList
+		);
+	}
+
+	cloneFrom<S2 extends GenericGraphStorage>(graph: GenericGraph<S2>) {
+		this.storage.migrateFrom(graph.storage);
+	}
+
+	mergeFromUnchecked<S2 extends GenericGraphStorage>(graph: GenericGraph<S2>) {
+		this.storage.set(
+			[...this.storage.verticesAsList, ...graph.storage.verticesAsList],
+			[...this.storage.edgesAsList, ...graph.storage.edgesAsList]
+		);
+	}
+
+	mergeFrom<S2 extends GenericGraphStorage>(graph: GenericGraph<S2>) {
+		const newVertices = [
+			...this.storage.verticesAsList.map(v => v.deepCopy()),
+			...graph.storage.verticesAsList.filter(
+				v => !this.storage.verticesAsList.some(
+					w => w.identifier == v.identifier
+				)
+			)
+		];
+
+		const newEdges = [
+			...this.storage.edgesAsList.map(([vtx, edges]) => [`${vtx}`, edges.map(w => w.deepCopy())]),
+			...graph.storage.edgesAsList.filter(
+				([graphVtx, graphVtxEdges]) => !this.getOutgoingEdges(graphVtx).some(
+					v => graphVtxEdges.some(
+						w => v.identifier == w.identifier ||
+							v.vertices[0].identifier == w.vertices[0].identifier ||
+							v.vertices[1].identifier == w.vertices[1].identifier))
+			)
+		] as [GraphVertexID, GenericGraphEdge[]][];
+
+		this.storage.set(
+			newVertices,
+			newEdges
+		);
 	}
 
 	hasDirectedEdge(edge: GenericGraphEdge) {
