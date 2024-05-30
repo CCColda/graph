@@ -41,17 +41,18 @@ const GraphVis = <S extends GenericGraphStorage>(props: React.PropsWithChildren<
 		[props.graph.vertices, props.graph.edges]
 	);
 
-	const options = {
-		physics: {
-			enabled: true
-		}
-	};
-
 	const ref = useRef<HTMLDivElement | null>(null);
 
 	useEffect(() => {
 		if (ref.current) {
-			const network = new Network(ref.current, { nodes: visNetworkNodes, edges: visNetworkEdges }, options)
+			const network = new Network(ref.current, { nodes: visNetworkNodes, edges: visNetworkEdges }, {
+				physics: {
+					enabled: true
+				},
+				layout: {
+					randomSeed: 1717089317933
+				}
+			})
 			network.moveTo({ scale: 0.5 });
 			return () => network.destroy();
 		}

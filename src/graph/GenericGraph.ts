@@ -125,8 +125,23 @@ export class GenericGraph<S extends GenericGraphStorage> {
 	}
 
 	getVertexByIdentifier(id: GraphVertexID) {
-		console.log("Searching vertex by id: " + id);
-		console.log(Array.from(this.storage.vertices.values()));
 		return iterateFindFirst(this.vertices.values(), v => v.identifier == id);
+	}
+
+	getEdgeByIdentifier(id: GraphEdgeID) {
+		const iterable = this.edges.values();
+
+		let result = iterable.next();
+
+		while (!result.done) {
+			const edge = result.value.find(v => v.identifier == id);
+
+			if (edge != null)
+				return edge;
+
+			iterable.next();
+		}
+
+		return null;
 	}
 };

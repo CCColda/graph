@@ -7,6 +7,7 @@ import AddVertexDialog from "@/components/AddVertexDialog";
 import { useEffect, useState } from "react";
 import useReactiveGraphStorage from "@/graph/useReactiveGraphStorage";
 import LocalGraphStorage from "@/graph/LocalGraphStorage";
+import AddEdgeDialog, { EdgeSelection } from "@/components/AddEdgeDialog";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -52,13 +53,20 @@ export default function Home() {
     graph.storage.migrateFrom(localGraph.storage);
   }, []);
 
+  const [edgeSelection, setEdgeSelection] = useState<EdgeSelection>([null, null]);
+
   return (
     <main className="w-full h-full flex flex-row justify-start align-stretch">
       <div className="flex flex-col justify-center">
         <AddVertexDialog
-          vertices={graph.vertices.values()}
+          vertices={graph.storage.verticesAsList}
           num_vertices={graph.vertices.size}
-          addVertex={v => { graph.addVertex(v); }} />
+          addVertex={v => graph.addVertex(v)} />
+        <AddEdgeDialog
+          vertices={graph.storage.verticesAsList}
+          selection={edgeSelection}
+          setSelection={setEdgeSelection}
+          addEdge={v => graph.addEdge(v)} />
         <div className="flex flex-row justify-start">
           <select>
             <option>Vertex 1</option>

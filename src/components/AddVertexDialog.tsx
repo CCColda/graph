@@ -1,11 +1,10 @@
 import Vertex from "@/graph/Vertex";
 import { useMemo, useState } from "react";
 import PersistentInput from "./PersistentInput";
-import { iterateFindFirst } from "@/graph/FunctionalIterable";
 import { GenericGraphVertex } from "@/graph/GenericGraph";
 
 type AddVertexDialogProps = {
-	vertices: IterableIterator<GenericGraphVertex>;
+	vertices: GenericGraphVertex[];
 	num_vertices: number;
 	addVertex: (v: Vertex) => any;
 };
@@ -22,7 +21,7 @@ const AddVertexDialog: React.FC<AddVertexDialogProps> = ({ vertices, num_vertice
 			return;
 		}
 
-		if (iterateFindFirst(vertices, v => v.identifier == vertexName) != null) {
+		if (vertices.find(v => v.identifier == vertexName) != null) {
 			setError("Vertex with this name already exists.");
 			return;
 		}
