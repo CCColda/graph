@@ -3,7 +3,7 @@ import { iterateFindFirst, iterateMap, iterateReduce } from "./FunctionalIterabl
 export type GraphVertexID = string;
 export type GraphEdgeID = string;
 
-export interface GraphVertex {
+export interface GenericGraphVertex {
 	toString(): string;
 	get identifier(): GraphVertexID;
 	get weight(): number;
@@ -12,13 +12,13 @@ export interface GraphVertex {
 	set chroma(chroma: number);
 }
 
-export interface GraphEdge<V> {
+export interface GenericGraphEdge<V> {
 	toString(): string;
 
 	get identifier(): GraphEdgeID;
 	get weight(): number;
 	get vertices(): [V, V];
-	get flipped(): GraphEdge<V>;
+	get flipped(): GenericGraphEdge<V>;
 
 	get flow_capacity(): number;
 
@@ -29,25 +29,31 @@ export interface GraphEdge<V> {
 	set chroma(chroma: number);
 }
 
-export type GraphProperties = {
+export type GenericGraphProperties = {
 	directed: boolean;
 	allowMultipleEdges: boolean;
 	allowLoops: boolean;
 }
 
-export class Graph<V extends GraphVertex> {
-	public vertices = new Set<V>();
-	public edges = new Map<GraphVertexID, GraphEdge<V>[]>();
-	public props: GraphProperties;
+export class GraphError extends Error {
+	constructor(msg: string, cause?: any) {
+		super(msg, { cause })
+	}
+};
 
-	public static SIMPLE_GRAPH: GraphProperties = {
+export class GenericGraph<V extends GenericGraphVertex> {
+	public vertices = new Set<V>();
+	public edges = new Map<GraphVertexID, GenericGraphEdge<V>[]>();
+	public readonly props: GenericGraphProperties;
+
+	public static readonly SIMPLE_GRAPH: GenericGraphProperties = Object.freeze({
 		allowLoops: false,
 		allowMultipleEdges: false,
-		directed: false
-	}
+		directed: false,
+	});
 
-	constructor(props: GraphProperties = Graph.SIMPLE_GRAPH) {
-		this.props = { ...props };
+	constructor(props: GenericGraphProperties = GenericGraph.SIMPLE_GRAPH) {
+		this.props = Object.freeze({ ...props });
 	}
 
 	get numVertices() { return this.vertices.size; }
@@ -66,18 +72,26 @@ export class Graph<V extends GraphVertex> {
 		}
 	}
 
-	addEdge(edge: GraphEdge<V>) {
+	addEdge(edge: GenericGraphEdge<V>) {
 		const [vtx1, vtx2] = edge.vertices;
 		if (this.vertices.has(vtx1) && this.vertices.has(vtx2)) {
-			this.edges.get(vtx1.identifier)!.push(edge);
-
-			if (!this.props.directed) {
-				this.edges.get(vtx2.identifier)!.push(edge.flipped);
+			if (!this.props.allowMultipleEdges) {
+				if (this.props.directed && this.hasEdge(edge)) {
+					throw new GraphError(`Cannot add ${edge}; the graph is directed and doesn't allow multiple edges.`);
+				}
+				else if (!this.props.directed && this.hasDirectedEdge(edge)) {
+					throw new GraphError(`Cannot add ${edge}; the graph doesn't allow multiple edges.`);
+				}
 			}
+
+			this.edges.get(vtx1.identifier)!.push(edge);
+		}
+		else {
+			throw new GraphError(`Cannot add ${edge}; the graph doesn't have some of its points [${vtx1.identifier} or ${vtx2.identifier}]`);
 		}
 	}
 
-	hasDirectedEdge(edge: GraphEdge<V>) {
+	hasDirectedEdge(edge: GenericGraphEdge<V>) {
 		const [vtx1, vtx2] = edge.vertices;
 		if (this.vertices.has(vtx1) && this.vertices.has(vtx2)) {
 			return this.edges.get(vtx1.identifier)?.some(v => v.identifier == edge.identifier);
@@ -86,12 +100,11 @@ export class Graph<V extends GraphVertex> {
 		return false;
 	}
 
-	hasEdge(edge: GraphEdge<V>) {
+	hasEdge(edge: GenericGraphEdge<V>) {
 		return this.props.directed ? this.hasDirectedEdge(edge) : this.hasDirectedEdge(edge) || this.hasDirectedEdge(edge.flipped);
 	}
 
 	getVertexByIdentifier(id: GraphVertexID) {
 		return iterateFindFirst(this.vertices.values(), v => v.identifier == id);
 	}
-
 };
