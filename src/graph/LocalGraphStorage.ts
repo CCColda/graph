@@ -1,4 +1,4 @@
-import { GenericGraphEdge, GenericGraphStorage, GenericGraphVertex, GraphVertexID } from "./GenericGraph";
+import { GenericGraph, GenericGraphEdge, GenericGraphProperties, GenericGraphStorage, GenericGraphVertex, GraphVertexID } from "./GenericGraph";
 import NotImplementedError from "./NotImplementedError";
 
 export default class LocalGraphStorage
@@ -6,6 +6,7 @@ export default class LocalGraphStorage
 
 	vertices = new Set<GenericGraphVertex>()
 	edges = new Map<GraphVertexID, GenericGraphEdge[]>()
+	props = GenericGraph.SIMPLE_GRAPH
 
 	get edgesAsList(): [GraphVertexID, GenericGraphEdge[]][] {
 		return Array.from(this.edges.entries());
@@ -42,5 +43,9 @@ export default class LocalGraphStorage
 
 	migrateFrom(storage: GenericGraphStorage): void {
 		this.set(storage.verticesAsList, storage.edgesAsList)
+	}
+
+	setProps(props: GenericGraphProperties): void {
+		this.props = { ...props };
 	}
 }

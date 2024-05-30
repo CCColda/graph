@@ -39,11 +39,18 @@ export interface GenericGraphEdge {
 	get displayProps(): object
 }
 
+export type GenericGraphProperties = {
+	directed: boolean;
+	allowMultipleEdges: boolean;
+	allowLoops: boolean;
+}
+
 export interface GenericGraphStorage {
 	readonly vertices: Set<GenericGraphVertex>;
 	readonly verticesAsList: GenericGraphVertex[];
 	readonly edges: Map<GraphVertexID, GenericGraphEdge[]>;
 	readonly edgesAsList: [GraphVertexID, GenericGraphEdge[]][]
+	readonly props: GenericGraphProperties
 
 	addVertex(vertex: GenericGraphVertex): void
 	addEdge(edge: GenericGraphEdge): void
@@ -54,17 +61,11 @@ export interface GenericGraphStorage {
 	migrateFrom(storage: GenericGraphStorage): void
 
 	set(vertices: GenericGraphVertex[], edges: [GraphVertexID, GenericGraphEdge[]][]): void
-}
-
-export type GenericGraphProperties = {
-	directed: boolean;
-	allowMultipleEdges: boolean;
-	allowLoops: boolean;
+	setProps(props: GenericGraphProperties): void
 }
 
 export class GenericGraph<S extends GenericGraphStorage> {
 	public storage: S
-	public readonly props: GenericGraphProperties;
 
 	public static readonly SIMPLE_GRAPH: GenericGraphProperties = Object.freeze({
 		allowLoops: false,
@@ -72,9 +73,8 @@ export class GenericGraph<S extends GenericGraphStorage> {
 		directed: false,
 	});
 
-	constructor(storage: S, props: GenericGraphProperties = GenericGraph.SIMPLE_GRAPH) {
+	constructor(storage: S) {
 		this.storage = storage;
-		this.props = Object.freeze({ ...props });
 	}
 
 	get edges() { return this.storage.edges; }
@@ -88,6 +88,9 @@ export class GenericGraph<S extends GenericGraphStorage> {
 			0
 		);
 	}
+
+	get props() { return this.storage.props; }
+	set props(props: GenericGraphProperties) { this.storage.setProps(props); }
 
 	addVertex(vtx: GenericGraphVertex) {
 		if (!this.vertices.has(vtx)) {
@@ -127,7 +130,7 @@ export class GenericGraph<S extends GenericGraphStorage> {
 			const vtx = this.getVertexByIdentifier(vtxID)!;
 
 			for (const vertex of this.storage.verticesAsList) {
-				if (!e.some(v => v.vertices[1] == vertex)) {
+				if (vertex.identifier != vtxID && !e.some(v => v.vertices[1].identifier == vertex.identifier)) {
 					edgeList.push(edgeFactory(vtx, vertex));
 				}
 			}
@@ -136,7 +139,7 @@ export class GenericGraph<S extends GenericGraphStorage> {
 		});
 
 		this.storage.set(
-			this.storage.verticesAsList,
+			this.storage.verticesAsList.map(v => v.deepCopy()),
 			newEdgeList
 		);
 	}

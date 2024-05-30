@@ -13,6 +13,7 @@ import BFSVis from "@/components/BFSVis";
 import GraphGuard from "@/components/GraphGuard";
 import RunBFSDialog from "@/components/RunBFSDialog";
 import FullBFS from "@/graph/FullBFS";
+import GraphPropDialog from "@/components/GraphPropDialog";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -59,8 +60,6 @@ export default function Home() {
 
     graph.cloneFrom(localGraph);
   }, []);
-
-  const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
   const [bfsIterable, setBfsIterable] = useState<IterableIterator<BFSResult> | null>(null);
   const [bfsDone, setBfsDone] = useState(false);
@@ -124,6 +123,7 @@ export default function Home() {
         <div className="flex flex-row justify-start">
           <button onClick={_ => graph.invert((v1, v2) => new Edge(v1, v2))}>Invert</button>
         </div>
+        <GraphPropDialog props={graph.props} setProps={new_props => graph.storage.setProps(new_props)} />
       </div>
       <GraphVis graph={graph} />
       <GraphGuard graph={bfsGraph}>

@@ -1,4 +1,4 @@
-import { GenericGraphEdge, GenericGraphStorage, GenericGraphVertex, GraphVertexID } from "./GenericGraph";
+import { GenericGraphEdge, GenericGraphProperties, GenericGraphStorage, GenericGraphVertex, GraphVertexID } from "./GenericGraph";
 import NotImplementedError from "./NotImplementedError";
 
 export type ReactiveVertices = GenericGraphVertex[]
@@ -9,6 +9,7 @@ export type ReactiveEdges = ReactiveEdgeList[]
 type ReactiveDispatch<T> = React.Dispatch<React.SetStateAction<T>>;
 type ReactiveVerticesDispatch = ReactiveDispatch<ReactiveVertices>;
 type ReactiveEdgesDispatch = ReactiveDispatch<ReactiveEdges>;
+type ReactiveGraphPropertiesDispatch = ReactiveDispatch<GenericGraphProperties>;
 
 export default class ReactiveGraphStorage
 	implements GenericGraphStorage {
@@ -19,17 +20,25 @@ export default class ReactiveGraphStorage
 	private rEdges: ReactiveEdges
 	private rSetEdges: ReactiveEdgesDispatch
 
+	private rProps: GenericGraphProperties
+	private rSetProps: ReactiveGraphPropertiesDispatch
+
 	constructor(
 		vertices: ReactiveVertices,
 		setVertices: ReactiveVerticesDispatch,
 		edges: ReactiveEdges,
-		setEdges: ReactiveEdgesDispatch
+		setEdges: ReactiveEdgesDispatch,
+		props: GenericGraphProperties,
+		setProps: ReactiveGraphPropertiesDispatch
 	) {
 		this.rVertices = vertices
 		this.rEdges = edges
 
 		this.rSetVertices = setVertices
 		this.rSetEdges = setEdges
+
+		this.rProps = props
+		this.rSetProps = setProps
 	}
 
 	addVertex(vertex: GenericGraphVertex): void {
@@ -99,7 +108,16 @@ export default class ReactiveGraphStorage
 		return this.rEdges
 	}
 
+	get props(): GenericGraphProperties {
+		return this.rProps
+	}
+
 	migrateFrom(storage: GenericGraphStorage): void {
 		this.set(storage.verticesAsList, storage.edgesAsList)
+		this.setProps(storage.props);
+	}
+
+	setProps(props: GenericGraphProperties): void {
+		this.rSetProps({ ...props })
 	}
 }
