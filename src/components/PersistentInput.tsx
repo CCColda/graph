@@ -5,6 +5,6 @@ type PersistentInputProps = {
 };
 
 const PersistentInput: React.FC<PersistentInputProps> = ({ input, setInput, placeholder }) =>
-	<input defaultValue={input} onChange={v => setInput(v.target.value)} placeholder={placeholder} />
+	<input value={input} onChange={v => setInput(v.target.value)} placeholder={placeholder} />
 
 export default PersistentInput;

@@ -103,6 +103,9 @@ export class GenericGraph<S extends GenericGraphStorage> {
 					throw new GraphError(`Cannot add ${edge}; the graph doesn't allow multiple edges.`);
 				}
 			}
+			if (!this.props.allowLoops && vtx1.identifier == vtx2.identifier) {
+				throw new GraphError(`Cannot add ${edge}; the graph does not allow loops.`);
+			}
 
 			this.storage.addEdge(edge)
 		}

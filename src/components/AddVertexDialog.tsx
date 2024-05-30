@@ -21,6 +21,11 @@ const AddVertexDialog: React.FC<AddVertexDialogProps> = ({ vertices, num_vertice
 			return;
 		}
 
+		if (vertexName == "null") {
+			setError("The vertex name cannot be \"null\".");
+			return;
+		}
+
 		if (vertices.find(v => v.identifier == vertexName) != null) {
 			setError("Vertex with this name already exists.");
 			return;
@@ -35,7 +40,7 @@ const AddVertexDialog: React.FC<AddVertexDialogProps> = ({ vertices, num_vertice
 		setVertexName(`v${num_vertices + 1}`);
 	};
 
-	return <div className="flex flex-col justify-start">
+	return <div className="flex flex-col justify-start p-1 border-black border rounded">
 		<div className="flex flex-row justify-stretch">
 			<PersistentInput
 				input={vertexName} setInput={setVertexName}

@@ -4,7 +4,7 @@ import { GenericGraph } from "@/graph/GenericGraph";
 import Vertex from "@/graph/Vertex";
 import Edge from "@/graph/Edge";
 import AddVertexDialog from "@/components/AddVertexDialog";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useReactiveGraphStorage from "@/graph/useReactiveGraphStorage";
 import LocalGraphStorage from "@/graph/LocalGraphStorage";
 import AddEdgeDialog, { EdgeSelection } from "@/components/AddEdgeDialog";
@@ -13,8 +13,10 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   const storage = useReactiveGraphStorage();
-
   const graph = new GenericGraph(storage);
+
+  const bfsStorage = useReactiveGraphStorage();
+  const bfsGraph = new GenericGraph(bfsStorage);
 
   useEffect(() => {
     const localGraph = new GenericGraph(new LocalGraphStorage());
@@ -53,6 +55,12 @@ export default function Home() {
     graph.storage.migrateFrom(localGraph.storage);
   }, []);
 
+  const runBfs = () => {
+
+  };
+
+  const bfsHidden = useMemo(() => bfsGraph.storage.verticesAsList.length == 0, [bfsGraph]);
+
   const [edgeSelection, setEdgeSelection] = useState<EdgeSelection>([null, null]);
 
   return (
@@ -68,31 +76,13 @@ export default function Home() {
           setSelection={setEdgeSelection}
           addEdge={v => graph.addEdge(v)} />
         <div className="flex flex-row justify-start">
-          <select>
-            <option>Vertex 1</option>
-          </select>
-          <select>
-            <option>Vertex 2</option>
-          </select>
-          <button>Add edge</button>
-        </div>
-        <div className="flex flex-row justify-start">
-          <input type="checkbox" id="directional" />
-          <label htmlFor="directional">Directional</label>
-        </div>
-        <div className="flex flex-row justify-start">
-          <input type="checkbox" id="muledge" />
-          <label htmlFor="muledge">Multiple edges</label>
-        </div>
-        <div className="flex flex-row justify-start">
-          <input type="checkbox" id="loop" />
-          <label htmlFor="loop">Loops</label>
-        </div>
-        <div className="flex flex-row justify-start">
-          <button>Run BFS</button>
+          <button onClick={_ => runBfs()}>Run BFS</button>
         </div>
       </div>
-      <GraphVis graph={graph}></GraphVis>
+      <GraphVis graph={graph} />
+      <div className="w-full h-full" hidden={bfsHidden}>
+        <GraphVis graph={bfsGraph} />
+      </div>
     </main>
   );
 }

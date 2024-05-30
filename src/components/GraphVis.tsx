@@ -8,7 +8,7 @@ import { DataSet } from "vis-data";
 import styles from "@/components/GraphVis.module.css";
 
 type GraphVisProps<S extends GenericGraphStorage> = {
-	graph: GenericGraph<S>
+	graph: GenericGraph<S>;
 }
 
 const GraphVis = <S extends GenericGraphStorage>(props: React.PropsWithChildren<GraphVisProps<S>>) => {
@@ -52,6 +52,9 @@ const GraphVis = <S extends GenericGraphStorage>(props: React.PropsWithChildren<
 				layout: {
 					randomSeed: 1717089317933
 				}
+			})
+			network.on("selectNode", (v) => {
+				console.log(v);
 			})
 			network.moveTo({ scale: 0.5 });
 			return () => network.destroy();

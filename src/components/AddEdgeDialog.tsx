@@ -51,7 +51,7 @@ const AddEdgeDialog: React.FC<AddEdgeDialogProps> = ({ vertices, selection, setS
 		)
 	}
 
-	return <div className="flex flex-col justify-start">
+	return <div className="flex flex-col justify-start p-1 border-black border rounded">
 		<div className="flex flex-row justify-stretch">
 			<select value={selection[0]} onChange={v => onVertexChange(0, v)}>
 				<option value="null">select edge</option>

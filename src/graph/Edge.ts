@@ -36,6 +36,6 @@ export default class Edge implements GenericGraphEdge {
 	}
 
 	toString(): string {
-		return this.vertices.map(v => v.identifier).join(" -> ")
+		return this.vertices.map(v => v.identifier).join(" → ")
 	}
 }
