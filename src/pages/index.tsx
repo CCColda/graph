@@ -1,57 +1,64 @@
-import Image from "next/image";
 import { Inter } from "next/font/google";
 import GraphVis from "@/components/GraphVis";
-import { GenericGraph, GenericGraphVertex, GenericGraphEdge, GraphVertexID, GraphError } from "@/graph/GenericGraph";
+import { GenericGraph } from "@/graph/GenericGraph";
 import Vertex from "@/graph/Vertex";
 import Edge from "@/graph/Edge";
+import AddVertexDialog from "@/components/AddVertexDialog";
+import { useEffect, useState } from "react";
+import useReactiveGraphStorage from "@/graph/useReactiveGraphStorage";
+import LocalGraphStorage from "@/graph/LocalGraphStorage";
 
 const inter = Inter({ subsets: ["latin"] });
 
-
-
-
-
 export default function Home() {
-  const graph = new GenericGraph<Vertex>()
+  const storage = useReactiveGraphStorage();
 
-  graph.addVertex(new Vertex("a"));
-  graph.addVertex(new Vertex("b"));
-  graph.addVertex(new Vertex("c"));
-  graph.addVertex(new Vertex("d"));
+  const graph = new GenericGraph(storage);
 
-  try {
-    graph.addEdge(new Edge(
-      graph.getVertexByIdentifier("a")!,
-      graph.getVertexByIdentifier("b")!));
+  useEffect(() => {
+    const localGraph = new GenericGraph(new LocalGraphStorage());
 
-    graph.addEdge(new Edge(
-      graph.getVertexByIdentifier("b")!,
-      graph.getVertexByIdentifier("c")!));
+    localGraph.addVertex(new Vertex("a"));
+    localGraph.addVertex(new Vertex("b"));
+    localGraph.addVertex(new Vertex("c"));
+    localGraph.addVertex(new Vertex("d"));
+    localGraph.addVertex(new Vertex("e"));
 
-    graph.addEdge(new Edge(
-      graph.getVertexByIdentifier("c")!,
-      graph.getVertexByIdentifier("d")!));
+    try {
+      localGraph.addEdge(new Edge(
+        localGraph.getVertexByIdentifier("a")!,
+        localGraph.getVertexByIdentifier("b")!));
 
-    graph.addEdge(new Edge(
-      graph.getVertexByIdentifier("d")!,
-      graph.getVertexByIdentifier("b")!));
-  }
-  catch (error) {
-    debugger;
-    console.error(`Error occured: ${error}`);
-  }
-  finally {
-    console.debug(graph);
-  }
+      localGraph.addEdge(new Edge(
+        localGraph.getVertexByIdentifier("b")!,
+        localGraph.getVertexByIdentifier("c")!));
 
+      localGraph.addEdge(new Edge(
+        localGraph.getVertexByIdentifier("c")!,
+        localGraph.getVertexByIdentifier("d")!));
+
+      localGraph.addEdge(new Edge(
+        localGraph.getVertexByIdentifier("d")!,
+        localGraph.getVertexByIdentifier("b")!));
+    }
+    catch (error) {
+      debugger;
+      console.error(`Error occured: ${error}`);
+    }
+    finally {
+      console.debug(localGraph);
+    }
+
+    graph.storage.migrateFrom(localGraph.storage);
+  }, []);
 
   return (
     <main className="w-full h-full flex flex-row justify-start align-stretch">
       <div className="flex flex-col justify-center">
-        <div className="flex flex-row justify-start">
-          <input type="text" placeholder="vertex name"></input>
-          <button>Add vertex</button>
-        </div>
+        <AddVertexDialog
+          vertices={graph.vertices.values()}
+          num_vertices={graph.vertices.size}
+          addVertex={v => { graph.addVertex(v); }} />
         <div className="flex flex-row justify-start">
           <select>
             <option>Vertex 1</option>
@@ -81,3 +88,4 @@ export default function Home() {
     </main>
   );
 }
+

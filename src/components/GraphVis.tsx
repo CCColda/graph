@@ -1,5 +1,5 @@
 import { iterateMap } from "@/graph/FunctionalIterable";
-import { GenericGraph, GenericGraphVertex } from "@/graph/GenericGraph";
+import { GenericGraph, GenericGraphStorage, GenericGraphVertex } from "@/graph/GenericGraph";
 import { useEffect, useMemo, useRef } from "react";
 
 import { Network } from "vis-network";
@@ -7,11 +7,11 @@ import { DataSet } from "vis-data";
 
 import styles from "@/components/GraphVis.module.css";
 
-type GraphVisProps<V extends GenericGraphVertex> = {
-	graph: GenericGraph<V>
+type GraphVisProps<S extends GenericGraphStorage> = {
+	graph: GenericGraph<S>
 }
 
-const GraphVis = <V extends GenericGraphVertex>(props: React.PropsWithChildren<GraphVisProps<V>>) => {
+const GraphVis = <S extends GenericGraphStorage>(props: React.PropsWithChildren<GraphVisProps<S>>) => {
 	const visNetworkNodes = useMemo(
 		() => {
 			return new DataSet(Array.from(
