@@ -1,4 +1,4 @@
-import { GenericGraphVertex } from "@/graph/GenericGraph";
+import { GenericGraphVertex } from "@/logic/genericgraph/GenericGraph";
 import React from "react";
 
 export type VertexSelectorProps = {

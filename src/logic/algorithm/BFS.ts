@@ -1,7 +1,7 @@
-import Edge from "./Edge";
-import { GenericGraph, GenericGraphStorage, GenericGraphVertex, GraphVertexID } from "./GenericGraph";
-import LocalGraphStorage from "./LocalGraphStorage";
-import Vertex from "./Vertex";
+import Edge from "../graph/Edge";
+import { GenericGraph, GenericGraphStorage, GenericGraphVertex, GraphVertexID } from "../genericgraph/GenericGraph";
+import LocalGraphStorage from "../graphstorage/LocalGraphStorage";
+import Vertex from "../graph/Vertex";
 
 export type BFSResult = {
 	distance: Map<GraphVertexID, number>;

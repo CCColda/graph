@@ -1,4 +1,4 @@
-import { GenericGraphVertex } from "./GenericGraph"
+import { GenericGraphVertex } from "../genericgraph/GenericGraph"
 
 export default class Vertex implements GenericGraphVertex {
 	private readonly id: string

@@ -1,5 +1,5 @@
-import { GenericGraphEdge, GenericGraphProperties, GenericGraphStorage, GenericGraphVertex, GraphVertexID } from "./GenericGraph";
-import NotImplementedError from "./NotImplementedError";
+import { GenericGraphEdge, GenericGraphProperties, GenericGraphStorage, GenericGraphVertex, GraphVertexID } from "../genericgraph/GenericGraph";
+import NotImplementedError from "../graph/NotImplementedError";
 
 export type ReactiveVertices = GenericGraphVertex[]
 

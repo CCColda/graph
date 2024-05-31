@@ -1,7 +1,7 @@
-import Vertex from "@/graph/Vertex";
+import Vertex from "@/logic/graph/Vertex";
 import { useMemo, useState } from "react";
-import PersistentInput from "./PersistentInput";
-import { GenericGraphVertex } from "@/graph/GenericGraph";
+import PersistentInput from "../input/PersistentInput";
+import { GenericGraphVertex } from "@/logic/genericgraph/GenericGraph";
 
 type AddVertexDialogProps = {
 	vertices: GenericGraphVertex[];

@@ -1,4 +1,4 @@
-import { GenericGraphProperties } from "@/graph/GenericGraph"
+import { GenericGraphProperties } from "@/logic/genericgraph/GenericGraph"
 
 export type GraphPropDialogProps = {
 	props: GenericGraphProperties;

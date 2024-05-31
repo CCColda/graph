@@ -1,7 +1,7 @@
 import BFS, { BFSResult } from "./BFS";
-import { iterateForEach } from "./FunctionalIterable";
-import { GenericGraphStorage, GenericGraph, GraphVertexID } from "./GenericGraph";
-import LocalGraphStorage from "./LocalGraphStorage";
+import { iterateForEach } from "../iterable/FunctionalIterable";
+import { GenericGraphStorage, GenericGraph, GraphVertexID } from "../genericgraph/GenericGraph";
+import LocalGraphStorage from "../graphstorage/LocalGraphStorage";
 
 export default function* FullBFS<S extends GenericGraphStorage>(
 	graph: GenericGraph<S>

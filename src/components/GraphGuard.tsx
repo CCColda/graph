@@ -1,5 +1,5 @@
-import { GenericGraph } from "@/graph/GenericGraph";
-import ReactiveGraphStorage from "@/graph/ReactiveGraphStorage";
+import { GenericGraph } from "@/logic/genericgraph/GenericGraph";
+import ReactiveGraphStorage from "@/logic/graphstorage/ReactiveGraphStorage";
 import { useEffect, useState } from "react";
 
 export type GraphGuardProps = React.PropsWithChildren<{

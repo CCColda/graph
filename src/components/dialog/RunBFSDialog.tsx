@@ -1,6 +1,6 @@
-import { GenericGraphVertex } from "@/graph/GenericGraph";
+import { GenericGraphVertex } from "@/logic/genericgraph/GenericGraph";
 import { useMemo, useState } from "react";
-import VertexSelector from "./VertexSelector";
+import VertexSelector from "../input/VertexSelector";
 
 export type RunBFSDialogProps = {
 	vertices: GenericGraphVertex[];

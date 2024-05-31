@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ReactiveGraphStorage, { ReactiveEdges, ReactiveVertices } from "./ReactiveGraphStorage";
-import { GenericGraph, GenericGraphProperties } from "./GenericGraph";
+import { GenericGraph, GenericGraphProperties } from "../genericgraph/GenericGraph";
 
 const useReactiveGraphStorage = () => {
 	const [vertices, setVertices] = useState<ReactiveVertices>([])

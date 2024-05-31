@@ -1,8 +1,8 @@
-import { BFSResult } from "@/graph/BFS";
-import { GenericGraph, GenericGraphStorage } from "@/graph/GenericGraph";
+import { BFSResult } from "@/logic/algorithm/BFS";
+import { GenericGraph, GenericGraphStorage } from "@/logic/genericgraph/GenericGraph";
 import GraphVis from "./GraphVis";
-import useReactiveGraphStorage from "@/graph/useReactiveGraphStorage";
-import ReactiveGraphStorage from "@/graph/ReactiveGraphStorage";
+import useReactiveGraphStorage from "@/logic/graphstorage/useReactiveGraphStorage";
+import ReactiveGraphStorage from "@/logic/graphstorage/ReactiveGraphStorage";
 
 export type BFSVisProps = {
 	bfsResult: Omit<BFSResult, "graph">;

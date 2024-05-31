@@ -1,5 +1,5 @@
-import { GenericGraph, GenericGraphEdge, GenericGraphProperties, GenericGraphStorage, GenericGraphVertex, GraphVertexID } from "./GenericGraph";
-import NotImplementedError from "./NotImplementedError";
+import { GenericGraph, GenericGraphEdge, GenericGraphProperties, GenericGraphStorage, GenericGraphVertex, GraphVertexID } from "../genericgraph/GenericGraph";
+import NotImplementedError from "../graph/NotImplementedError";
 
 export default class LocalGraphStorage
 	implements GenericGraphStorage {

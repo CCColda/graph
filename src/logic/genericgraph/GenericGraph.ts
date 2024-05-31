@@ -1,4 +1,4 @@
-import { iterateFindFirst, iterateMap, iterateReduce } from "./FunctionalIterable";
+import { iterateFindFirst, iterateMap, iterateReduce } from "../iterable/FunctionalIterable";
 import GraphError from "./GraphError";
 
 export type GraphVertexID = string;

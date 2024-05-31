@@ -1,4 +1,4 @@
-import { GenericGraphEdge, GenericGraphVertex } from "./GenericGraph"
+import { GenericGraphEdge, GenericGraphVertex } from "../genericgraph/GenericGraph"
 
 export default class Edge implements GenericGraphEdge {
 	private static id: number = 0

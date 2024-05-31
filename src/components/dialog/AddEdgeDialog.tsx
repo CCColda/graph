@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import { GenericGraphEdge, GenericGraphVertex } from "@/graph/GenericGraph";
-import GraphError from "@/graph/GraphError";
-import Edge from "@/graph/Edge";
-import VertexSelector from "./VertexSelector";
+import { GenericGraphEdge, GenericGraphVertex } from "@/logic/genericgraph/GenericGraph";
+import GraphError from "@/logic/genericgraph/GraphError";
+import Edge from "@/logic/graph/Edge";
+import VertexSelector from "../input/VertexSelector";
 
 export type EdgeSelection = [string, string];
 

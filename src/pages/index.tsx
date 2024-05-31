@@ -1,19 +1,19 @@
 import { Inter } from "next/font/google";
 import GraphVis from "@/components/GraphVis";
-import { GenericGraph, GenericGraphVertex } from "@/graph/GenericGraph";
-import Vertex from "@/graph/Vertex";
-import Edge from "@/graph/Edge";
-import AddVertexDialog from "@/components/AddVertexDialog";
+import { GenericGraph, GenericGraphVertex } from "@/logic/genericgraph/GenericGraph";
+import Vertex from "@/logic/graph/Vertex";
+import Edge from "@/logic/graph/Edge";
+import AddVertexDialog from "@/components/dialog/AddVertexDialog";
 import { useEffect, useState } from "react";
-import useReactiveGraphStorage from "@/graph/useReactiveGraphStorage";
-import LocalGraphStorage from "@/graph/LocalGraphStorage";
-import AddEdgeDialog, { EdgeSelection } from "@/components/AddEdgeDialog";
-import BFS, { BFSResult } from "@/graph/BFS";
+import useReactiveGraphStorage from "@/logic/graphstorage/useReactiveGraphStorage";
+import LocalGraphStorage from "@/logic/graphstorage/LocalGraphStorage";
+import AddEdgeDialog, { EdgeSelection } from "@/components/dialog/AddEdgeDialog";
+import BFS, { BFSResult } from "@/logic/algorithm/BFS";
 import BFSVis from "@/components/BFSVis";
 import GraphGuard from "@/components/GraphGuard";
-import RunBFSDialog from "@/components/RunBFSDialog";
-import FullBFS from "@/graph/FullBFS";
-import GraphPropDialog from "@/components/GraphPropDialog";
+import RunBFSDialog from "@/components/dialog/RunBFSDialog";
+import FullBFS from "@/logic/algorithm/FullBFS";
+import GraphPropDialog from "@/components/dialog/GraphPropDialog";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -104,6 +104,7 @@ export default function Home() {
   return (
     <main className="w-full h-full flex flex-row justify-start align-stretch">
       <div className="flex flex-col justify-center">
+        <span className="text-center text-xl mb-5">Controls</span>
         <AddVertexDialog
           vertices={graph.storage.verticesAsList}
           num_vertices={graph.vertices.size}

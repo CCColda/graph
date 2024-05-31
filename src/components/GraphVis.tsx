@@ -1,5 +1,5 @@
-import { iterateMap } from "@/graph/FunctionalIterable";
-import { GenericGraph, GenericGraphStorage, GenericGraphVertex } from "@/graph/GenericGraph";
+import { iterateMap } from "@/logic/iterable/FunctionalIterable";
+import { GenericGraph, GenericGraphStorage, GenericGraphVertex } from "@/logic/genericgraph/GenericGraph";
 import { useEffect, useMemo, useRef } from "react";
 
 import { Network } from "vis-network";
