@@ -1,6 +1,6 @@
-import { GenericGraphVertex } from "../genericgraph/GenericGraph"
+import { IGraphVertex } from "../genericgraph/GraphTypes"
 
-export default class Vertex implements GenericGraphVertex {
+export default class Vertex implements IGraphVertex {
 	private readonly id: string
 	public readonly name: string
 	public chroma: number = 0
@@ -13,8 +13,17 @@ export default class Vertex implements GenericGraphVertex {
 		this.displayProps = displayProps
 	}
 
-	deepCopy(): GenericGraphVertex {
-		return new Vertex(`${this.name}`, this.displayProps)
+	withChroma(chroma: number): Vertex {
+		const result = new Vertex(`${this.name}`, this.displayProps);
+		result.chroma = chroma;
+		return result;
+	}
+
+	deepCopy(): IGraphVertex {
+		const result = new Vertex(`${this.name}`, this.displayProps)
+		result.chroma = this.chroma;
+		result.weight = this.weight;
+		return result;
 	}
 
 	get identifier(): string {

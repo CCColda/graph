@@ -1,25 +1,15 @@
-import { GenericGraph } from "@/logic/genericgraph/GenericGraph";
 import ReactiveGraphStorage from "@/logic/graphstorage/ReactiveGraphStorage";
-import { useEffect, useState } from "react";
+import ConditionGuard from "./ConditionGuard";
+import { Graph } from "@/logic/genericgraph/GenericGraph";
 
 export type GraphGuardProps = React.PropsWithChildren<{
-	graph: GenericGraph<ReactiveGraphStorage>;
+	graph: Graph<ReactiveGraphStorage>;
 }>;
 
 const GraphGuard: React.FC<GraphGuardProps> = (props) => {
-	const [shown, setShown] = useState(false);
-
-	useEffect(() => {
-		if (props.graph.storage.verticesAsList.length != 0) {
-			setShown(true);
-		}
-	}, [props.graph]);
-
-	return <>
-		{
-			shown && props.children
-		}
-	</>
+	return <ConditionGuard conditions={[props.graph.numVertices != 0]}>
+		{props.children}
+	</ConditionGuard>
 };
 
 export default GraphGuard;

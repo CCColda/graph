@@ -1,10 +1,10 @@
-import { GenericGraphVertex } from "@/logic/genericgraph/GenericGraph";
 import { useMemo, useState } from "react";
 import VertexSelector from "../input/VertexSelector";
+import { IGraphVertex } from "@/logic/genericgraph/GraphTypes";
 
 export type RunBFSDialogProps = {
-	vertices: GenericGraphVertex[];
-	runBfs: (vertex: GenericGraphVertex) => any;
+	vertices: IGraphVertex[];
+	runBfs: (vertex: IGraphVertex) => any;
 };
 
 const RunBFSDialog: React.FC<RunBFSDialogProps> = ({ vertices, runBfs }) => {

@@ -1,11 +1,13 @@
 import { useState } from "react";
-import ReactiveGraphStorage, { ReactiveEdges, ReactiveVertices } from "./ReactiveGraphStorage";
-import { GenericGraph, GenericGraphProperties } from "../genericgraph/GenericGraph";
+import { GraphProperties } from "../genericgraph/GraphTypes";
+import ReactiveGraphStorage from "./ReactiveGraphStorage";
+import { GraphEdgeList, GraphVertexList } from "../genericgraph/GraphStorageInterfaces";
+import { SIMPLE_GRAPH } from "../genericgraph/GraphProperties";
 
 const useReactiveGraphStorage = () => {
-	const [vertices, setVertices] = useState<ReactiveVertices>([])
-	const [edges, setEdges] = useState<ReactiveEdges>([]);
-	const [props, setProps] = useState<GenericGraphProperties>(GenericGraph.SIMPLE_GRAPH);
+	const [vertices, setVertices] = useState<GraphVertexList>([])
+	const [edges, setEdges] = useState<GraphEdgeList>([]);
+	const [props, setProps] = useState<GraphProperties>(SIMPLE_GRAPH);
 
 	return new ReactiveGraphStorage(
 		vertices, setVertices,

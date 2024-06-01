@@ -1,15 +1,15 @@
-import { GenericGraphProperties } from "@/logic/genericgraph/GenericGraph"
+import { GraphProperties } from "@/logic/genericgraph/GraphTypes";
 
 export type GraphPropDialogProps = {
-	props: GenericGraphProperties;
-	setProps: (new_props: GenericGraphProperties) => void
+	props: GraphProperties;
+	setProps: (new_props: GraphProperties) => void
 }
 
 type GraphPropToggleProps = {
-	propName: keyof GenericGraphProperties,
+	propName: keyof GraphProperties,
 	propLabel: string,
-	props: GenericGraphProperties;
-	setProps: (new_props: GenericGraphProperties) => void
+	props: GraphProperties;
+	setProps: (new_props: GraphProperties) => void
 };
 
 const GraphPropToggle: React.FC<GraphPropToggleProps> = ({ propName, propLabel, props, setProps }) => {

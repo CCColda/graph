@@ -1,21 +1,23 @@
+import { Graph } from "../genericgraph/GenericGraph";
+import { IGraphStorage } from "../genericgraph/GraphStorageInterfaces";
+import { GraphVertexID, IGraphVertex } from "../genericgraph/GraphTypes";
 import Edge from "../graph/Edge";
-import { GenericGraph, GenericGraphStorage, GenericGraphVertex, GraphVertexID } from "../genericgraph/GenericGraph";
-import LocalGraphStorage from "../graphstorage/LocalGraphStorage";
 import Vertex from "../graph/Vertex";
+import LocalGraphStorage from "../graphstorage/LocalGraphStorage";
 
 export type BFSResult = {
 	distance: Map<GraphVertexID, number>;
 	previous: Map<GraphVertexID, GraphVertexID>;
-	graph: GenericGraph<LocalGraphStorage>;
+	graph: Graph<LocalGraphStorage>;
 };
 
-export default function* BFS<S extends GenericGraphStorage>(
-	graph: GenericGraph<S>, startingVertex: GenericGraphVertex): IterableIterator<BFSResult> {
+export default function* BFS<S extends IGraphStorage>(
+	graph: Graph<S>, startingVertex: IGraphVertex): IterableIterator<BFSResult> {
 
 	const result: BFSResult = {
 		distance: new Map<GraphVertexID, number>(),
 		previous: new Map<GraphVertexID, GraphVertexID>(),
-		graph: new GenericGraph(new LocalGraphStorage())
+		graph: new Graph(new LocalGraphStorage())
 	};
 
 	result.distance.set(startingVertex.identifier, 0);
@@ -40,8 +42,8 @@ export default function* BFS<S extends GenericGraphStorage>(
 				result.graph.addVertex(new Vertex(outgoing.identifier));
 
 				result.graph.addEdge(new Edge(
-					result.graph.getVertexByIdentifier(activeVertex.identifier)!,
-					result.graph.getVertexByIdentifier(outgoing.identifier)!));
+					result.graph.getVertexByID(activeVertex.identifier)!,
+					result.graph.getVertexByID(outgoing.identifier)!));
 
 			}
 		}

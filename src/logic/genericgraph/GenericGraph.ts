@@ -1,77 +1,9 @@
-import { iterateFindFirst, iterateMap, iterateReduce } from "../iterable/FunctionalIterable";
 import GraphError from "./GraphError";
+import { GraphEdgeList, GraphEdgeSet, GraphVertexList, IGraphStorage } from "./GraphStorageInterfaces";
+import { GraphProperties, IGraphVertex, IGraphEdge, GraphEdgeFactory, GraphVertexID, GraphEdgeID } from "./GraphTypes";
 
-export type GraphVertexID = string;
-export type GraphEdgeID = string;
-
-export interface GenericGraphVertex {
-	toString(): string;
-
-	deepCopy(): GenericGraphVertex
-
-	get identifier(): GraphVertexID;
-	get weight(): number;
-
-	get chroma(): number;
-	set chroma(chroma: number);
-
-	get displayProps(): object
-}
-
-export interface GenericGraphEdge {
-	toString(): string;
-
-	deepCopy(): GenericGraphEdge
-
-	get identifier(): GraphEdgeID;
-	get weight(): number;
-	get vertices(): [GenericGraphVertex, GenericGraphVertex];
-	get flipped(): GenericGraphEdge;
-
-	get flow_capacity(): number;
-
-	get flow(): number;
-	set flow(flow: number);
-
-	get chroma(): number;
-	set chroma(chroma: number);
-
-	get displayProps(): object
-}
-
-export type GenericGraphProperties = {
-	directed: boolean;
-	allowMultipleEdges: boolean;
-	allowLoops: boolean;
-}
-
-export interface GenericGraphStorage {
-	readonly vertices: Set<GenericGraphVertex>;
-	readonly verticesAsList: GenericGraphVertex[];
-	readonly edges: Map<GraphVertexID, GenericGraphEdge[]>;
-	readonly edgesAsList: [GraphVertexID, GenericGraphEdge[]][]
-	readonly props: GenericGraphProperties
-
-	addVertex(vertex: GenericGraphVertex): void
-	addEdge(edge: GenericGraphEdge): void
-	setEmptyEdgesFor(vertex: GenericGraphVertex): void
-	removeVertex(vertex: GenericGraphVertex): void
-	removeEdge(edge: GenericGraphEdge): void
-
-	migrateFrom(storage: GenericGraphStorage): void
-
-	set(vertices: GenericGraphVertex[], edges: [GraphVertexID, GenericGraphEdge[]][]): void
-	setProps(props: GenericGraphProperties): void
-}
-
-export class GenericGraph<S extends GenericGraphStorage> {
+export class Graph<S extends IGraphStorage> {
 	public storage: S
-
-	public static readonly SIMPLE_GRAPH: GenericGraphProperties = Object.freeze({
-		allowLoops: false,
-		allowMultipleEdges: false,
-		directed: false,
-	});
 
 	constructor(storage: S) {
 		this.storage = storage;
@@ -80,28 +12,31 @@ export class GenericGraph<S extends GenericGraphStorage> {
 	get edges() { return this.storage.edges; }
 	get vertices() { return this.storage.vertices; }
 
-	get numVertices() { return this.vertices.size; }
+	get numVertices() { return this.storage.vertices.length; }
 	get numEdges() {
-		return iterateReduce(
-			iterateMap(this.edges.values(), v => v.length),
-			(a, b) => a + b,
-			0
-		);
+		return this.storage.edges.map(([_, edges]) => edges.length)
 	}
 
 	get props() { return this.storage.props; }
-	set props(props: GenericGraphProperties) { this.storage.setProps(props); }
+	set props(props: GraphProperties) { this.storage.setProps(props); }
 
-	addVertex(vtx: GenericGraphVertex) {
-		if (!this.vertices.has(vtx)) {
+	hasVertex(vtx: IGraphVertex) {
+		return this.storage.getVertexByID(vtx.identifier) != null;
+	}
+
+	addVertex(vtx: IGraphVertex) {
+		if (!this.hasVertex(vtx)) {
 			this.storage.addVertex(vtx);
 			this.storage.setEmptyEdgesFor(vtx);
 		}
+		else {
+			throw new GraphError(`Cannot add ${vtx}: a vertex with this name already exists.`);
+		}
 	}
 
-	addEdge(edge: GenericGraphEdge) {
+	addEdge(edge: IGraphEdge) {
 		const [vtx1, vtx2] = edge.vertices;
-		if (this.vertices.has(vtx1) && this.vertices.has(vtx2)) {
+		if (this.hasVertex(vtx1) && this.hasVertex(vtx2)) {
 			if (!this.props.allowMultipleEdges) {
 				if (this.props.directed && this.hasEdge(edge)) {
 					throw new GraphError(`Cannot add ${edge}; the graph is directed and doesn't allow multiple edges.`);
@@ -124,57 +59,84 @@ export class GenericGraph<S extends GenericGraphStorage> {
 		}
 	}
 
-	invert(edgeFactory: (vtx1: GenericGraphVertex, vtx2: GenericGraphVertex) => GenericGraphEdge) {
-		const newEdgeList = this.storage.edgesAsList.map(([vtxID, e]) => {
-			let edgeList: GenericGraphEdge[] = [];
-			const vtx = this.getVertexByIdentifier(vtxID)!;
+	invert(edgeFactory: GraphEdgeFactory) {
+		const newEdgeList = this.storage.edges.map(([vtxID, edges]) => {
+			let edgeList: IGraphEdge[] = [];
+			const vtx = this.getVertexByID(vtxID)!;
 
-			for (const vertex of this.storage.verticesAsList) {
-				if (vertex.identifier != vtxID && !e.some(v => v.vertices[1].identifier == vertex.identifier)) {
-					edgeList.push(edgeFactory(vtx, vertex));
+			for (const vertex of this.storage.vertices) {
+				if (vertex.identifier != vtxID && !edges.some(({ vertices: [_, outVtx] }) => outVtx.identifier == vertex.identifier)) {
+					edgeList.push(edgeFactory(vtx.deepCopy(), vertex.deepCopy()));
 				}
 			}
 
-			return [vtxID, edgeList] as [GraphVertexID, GenericGraphEdge[]];
+			return [`${vtxID}`, edgeList] as [GraphVertexID, IGraphEdge[]];
 		});
 
 		this.storage.set(
-			this.storage.verticesAsList.map(v => v.deepCopy()),
+			this.storage.vertices.map(v => v.deepCopy()),
 			newEdgeList
 		);
 	}
 
-	cloneFrom<S2 extends GenericGraphStorage>(graph: GenericGraph<S2>) {
-		this.storage.migrateFrom(graph.storage);
+	private static deepCopyVertices(vertices: GraphVertexList) {
+		return vertices.map(vtx => vtx.deepCopy());
 	}
 
-	mergeFromUnchecked<S2 extends GenericGraphStorage>(graph: GenericGraph<S2>) {
-		this.storage.set(
-			[...this.storage.verticesAsList, ...graph.storage.verticesAsList],
-			[...this.storage.edgesAsList, ...graph.storage.edgesAsList]
-		);
+	private static deepCopyAndMatchEdges(vertices: GraphVertexList, edges: GraphEdgeList): GraphEdgeList {
+		return edges.map(
+			([vtxID, edges]) => [
+				`${vtxID}`, edges.map(edge => {
+					const deepCopiedEdge = edge.deepCopy()
+					deepCopiedEdge.vertices[1] = vertices.find(vtx => vtx.identifier == edge.vertices[1].identifier)!
+					return deepCopiedEdge
+				})
+			] as GraphEdgeSet
+		)
 	}
 
-	mergeFrom<S2 extends GenericGraphStorage>(graph: GenericGraph<S2>) {
+	clear() {
+		this.storage.set([], []);
+	}
+
+	cloneFrom<S2 extends IGraphStorage>(graph: Graph<S2>) {
+		const deepCopiedVertices = Graph.deepCopyVertices(graph.vertices);
+		const deepCopiedMatchedEdges = Graph.deepCopyAndMatchEdges(deepCopiedVertices, graph.edges);
+
+		this.storage.setVertices(deepCopiedVertices)
+		this.storage.setEdges(deepCopiedMatchedEdges)
+	}
+
+	mergeFromUnchecked<S2 extends IGraphStorage>(graph: Graph<S2>) {
+		const deepCopiedVertices = [...this.storage.vertices, ...Graph.deepCopyVertices(graph.storage.vertices)];
+		const deepCopiedEdges = [...this.storage.edges, ...Graph.deepCopyAndMatchEdges(deepCopiedVertices, graph.storage.edges)];
+
+		this.storage.setVertices(deepCopiedVertices);
+		this.storage.setEdges(deepCopiedEdges);
+	}
+
+	mergeFrom<S2 extends IGraphStorage>(graph: Graph<S2>) {
 		const newVertices = [
-			...this.storage.verticesAsList.map(v => v.deepCopy()),
-			...graph.storage.verticesAsList.filter(
-				v => !this.storage.verticesAsList.some(
+			...this.storage.vertices,
+			...Graph.deepCopyVertices(graph.storage.vertices.filter(
+				v => !this.storage.vertices.some(
 					w => w.identifier == v.identifier
 				)
-			)
+			))
 		];
 
 		const newEdges = [
-			...this.storage.edgesAsList.map(([vtx, edges]) => [`${vtx}`, edges.map(w => w.deepCopy())]),
-			...graph.storage.edgesAsList.filter(
-				([graphVtx, graphVtxEdges]) => !this.getOutgoingEdges(graphVtx).some(
-					v => graphVtxEdges.some(
-						w => v.identifier == w.identifier ||
-							v.vertices[0].identifier == w.vertices[0].identifier ||
-							v.vertices[1].identifier == w.vertices[1].identifier))
-			)
-		] as [GraphVertexID, GenericGraphEdge[]][];
+			...this.storage.edges,
+			...Graph.deepCopyAndMatchEdges(
+				newVertices,
+				graph.storage.edges.filter(
+					([graphVtx, graphVtxEdges]) => !this.getOutgoingEdges(graphVtx).some(
+						v => graphVtxEdges.some(
+							w => v.identifier == w.identifier ||
+								v.vertices[0].identifier == w.vertices[0].identifier ||
+								v.vertices[1].identifier == w.vertices[1].identifier))
+				))
+		];
 
 		this.storage.set(
 			newVertices,
@@ -182,45 +144,32 @@ export class GenericGraph<S extends GenericGraphStorage> {
 		);
 	}
 
-	hasDirectedEdge(edge: GenericGraphEdge) {
+	hasDirectedEdge(edge: IGraphEdge) {
 		const [vtx1, vtx2] = edge.vertices;
-		if (this.vertices.has(vtx1) && this.vertices.has(vtx2)) {
-			return this.edges.get(vtx1.identifier)?.some(v => v.identifier == edge.identifier);
+		if (this.hasVertex(vtx1) && this.hasVertex(vtx2)) {
+			return this.getOutgoingEdges(vtx1.identifier)?.some(e => e.identifier == edge.identifier) ?? false;
 		}
 
 		return false;
 	}
 
-	hasEdge(edge: GenericGraphEdge) {
+	hasEdge(edge: IGraphEdge) {
 		return this.props.directed ? this.hasDirectedEdge(edge) : this.hasDirectedEdge(edge) || this.hasDirectedEdge(edge.flipped);
 	}
 
-	getVertexByIdentifier(id: GraphVertexID) {
-		return iterateFindFirst(this.vertices.values(), v => v.identifier == id);
+	getVertexByID(id: GraphVertexID) {
+		return this.storage.getVertexByID(id)
 	}
 
-	getEdgeByIdentifier(id: GraphEdgeID) {
-		const iterable = this.edges.values();
-
-		let result = iterable.next();
-
-		while (!result.done) {
-			const edge = result.value.find(v => v.identifier == id);
-
-			if (edge != null)
-				return edge;
-
-			iterable.next();
-		}
-
-		return null;
+	getEdgeByID(id: GraphEdgeID) {
+		return this.storage.getEdgeByID(id)
 	}
 
 	getOutgoingEdges(id: GraphVertexID) {
-		return this.edges.get(id) ?? [];
+		return this.storage.getOutgoingEdgesByID(id) ?? [];
 	}
 
 	getNeighbors(id: GraphVertexID) {
-		return this.getOutgoingEdges(id).map(v => v.vertices[1]);
+		return this.getOutgoingEdges(id).map(edge => edge.vertices[1]);
 	}
 };

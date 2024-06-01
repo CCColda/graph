@@ -1,17 +1,17 @@
-import { GenericGraphEdge, GenericGraphVertex } from "../genericgraph/GenericGraph"
+import { IGraphEdge, IGraphVertex } from "../genericgraph/GraphTypes"
 
-export default class Edge implements GenericGraphEdge {
+export default class Edge implements IGraphEdge {
 	private static id: number = 0
 	private id: string
 
-	public vertices: [GenericGraphVertex, GenericGraphVertex]
+	public vertices: [IGraphVertex, IGraphVertex]
 	public chroma: number = 0
 	public flow: number = 0
 	public flow_capacity = 0
 	public weight: number = 0
 	public displayProps: object
 
-	constructor(v1: GenericGraphVertex, v2: GenericGraphVertex, id?: string, displayProps: object = {}) {
+	constructor(v1: IGraphVertex, v2: IGraphVertex, id?: string, displayProps: object = {}) {
 		this.vertices = [v1, v2]
 		this.displayProps = displayProps
 
@@ -25,11 +25,11 @@ export default class Edge implements GenericGraphEdge {
 		}
 	}
 
-	deepCopy(): GenericGraphEdge {
+	deepCopy(): IGraphEdge {
 		return new Edge(this.vertices[0].deepCopy(), this.vertices[1].deepCopy(), `${this.id}`);
 	}
 
-	get flipped(): GenericGraphEdge {
+	get flipped(): IGraphEdge {
 		return new Edge(this.vertices[1], this.vertices[0])
 	}
 

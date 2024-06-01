@@ -1,36 +1,41 @@
-import { GenericGraphEdge, GenericGraphProperties, GenericGraphStorage, GenericGraphVertex, GraphVertexID } from "../genericgraph/GenericGraph";
+import { GraphVertexList, GraphEdgeList, IGraphStorage, GraphEdgeSet, IBaseGraphStorage } from "../genericgraph/GraphStorageInterfaces";
+import { GraphProperties, IGraphVertex, IGraphEdge, GraphVertexID } from "../genericgraph/GraphTypes";
 import NotImplementedError from "../graph/NotImplementedError";
-
-export type ReactiveVertices = GenericGraphVertex[]
-
-export type ReactiveEdgeList = [GraphVertexID, GenericGraphEdge[]];
-export type ReactiveEdges = ReactiveEdgeList[]
+import ReadonlyGraphStorage from "./ReadonlyGraphStorage";
 
 type ReactiveDispatch<T> = React.Dispatch<React.SetStateAction<T>>;
-type ReactiveVerticesDispatch = ReactiveDispatch<ReactiveVertices>;
-type ReactiveEdgesDispatch = ReactiveDispatch<ReactiveEdges>;
-type ReactiveGraphPropertiesDispatch = ReactiveDispatch<GenericGraphProperties>;
+type ReactiveVerticesDispatch = ReactiveDispatch<GraphVertexList>;
+type ReactiveEdgesDispatch = ReactiveDispatch<GraphEdgeList>;
+type ReactiveGraphPropertiesDispatch = ReactiveDispatch<GraphProperties>;
 
 export default class ReactiveGraphStorage
-	implements GenericGraphStorage {
+	extends ReadonlyGraphStorage
+	implements IGraphStorage {
 
-	private rVertices: ReactiveVertices
+	private rVertices: GraphVertexList
 	private rSetVertices: ReactiveVerticesDispatch
 
-	private rEdges: ReactiveEdges
+	private rEdges: GraphEdgeList
 	private rSetEdges: ReactiveEdgesDispatch
 
-	private rProps: GenericGraphProperties
+	private rProps: GraphProperties
 	private rSetProps: ReactiveGraphPropertiesDispatch
 
+	get vertices() { return this.rVertices; }
+	get edges() { return this.rEdges; }
+
+	get props() { return this.rProps; }
+
 	constructor(
-		vertices: ReactiveVertices,
+		vertices: GraphVertexList,
 		setVertices: ReactiveVerticesDispatch,
-		edges: ReactiveEdges,
+		edges: GraphEdgeList,
 		setEdges: ReactiveEdgesDispatch,
-		props: GenericGraphProperties,
+		props: GraphProperties,
 		setProps: ReactiveGraphPropertiesDispatch
 	) {
+		super()
+
 		this.rVertices = vertices
 		this.rEdges = edges
 
@@ -41,83 +46,69 @@ export default class ReactiveGraphStorage
 		this.rSetProps = setProps
 	}
 
-	addVertex(vertex: GenericGraphVertex): void {
+	addVertex(vertex: IGraphVertex): void {
 		this.rSetVertices(old => [...old.map(v => v.deepCopy()), vertex.deepCopy()])
 	}
 
-	addEdge(edge: GenericGraphEdge): void {
+	addEdge(edge: IGraphEdge): void {
 		this.rSetEdges(old => {
 			const vtx1 = edge.vertices[0].identifier;
-			const copyAndAddEdgeIfNeeded = (v: ReactiveEdgeList): ReactiveEdgeList => {
-				return v[0] == vtx1
-					? ([`${v[0]}`, [...v[1].map(w => w.deepCopy()), edge]])
-					: ([`${v[0]}`, v[1].map(w => w.deepCopy())])
+			const copyAndAddEdgeIfNeeded = ([vtxID, edges]: GraphEdgeSet): GraphEdgeSet => {
+				return vtxID == vtx1
+					? ([`${vtxID}`, [...edges.map(v => v.deepCopy()), edge]])
+					: ([`${vtxID}`, edges.map(v => v.deepCopy())])
 			};
 
-			const newEdges = [...old.map(v => copyAndAddEdgeIfNeeded(v))]
+			const newEdges = [...old.map(copyAndAddEdgeIfNeeded)]
 
 			return newEdges
 		});
 	}
 
-	removeEdge(edge: GenericGraphEdge): void {
-		throw new NotImplementedError()
-	}
-
-	removeVertex(vertex: GenericGraphVertex): void {
-		throw new NotImplementedError()
-	}
-
-	setEmptyEdgesFor(vertex: GenericGraphVertex): void {
+	setEmptyEdgesFor(vertex: IGraphVertex): void {
 		this.rSetEdges(old => {
-			const vtx1 = vertex.identifier;
+			const vtxID = vertex.identifier;
 
-			if (old.some(v => v[0] == vtx1)) {
-				const copyAndSetEmptyIfNeeded = (v: ReactiveEdgeList): ReactiveEdgeList => {
-					return v[0] == vtx1
-						? ([`${v[0]}`, []])
-						: ([`${v[0]}`, v[1].map(w => w.deepCopy())])
+			if (old.some(([oldVtxID]) => oldVtxID == vtxID)) {
+				const copyAndSetEmptyIfNeeded = ([edgeVtxID, edges]: GraphEdgeSet): GraphEdgeSet => {
+					return edgeVtxID == vtxID
+						? ([`${edgeVtxID}`, []])
+						: ([`${edgeVtxID}`, edges.map(v => v.deepCopy())])
 				};
 
-				return [...old.map(v => copyAndSetEmptyIfNeeded(v))]
+				return [...old.map(copyAndSetEmptyIfNeeded)]
 			}
 			else {
-				return [...old.map(v => ([`${v[0]}`, v[1].map(w => w.deepCopy())])), [vtx1, []]] as [GraphVertexID, GenericGraphEdge[]][];
+				return [
+					...old.map(([vtxID, edges]) => ([`${vtxID}`, edges.map(w => w.deepCopy())])),
+					[`${vtxID}`, []]
+				] as [GraphVertexID, IGraphEdge[]][];
 			}
 		});
 	}
 
-	set(vertices: GenericGraphVertex[], edges: [GraphVertexID, GenericGraphEdge[]][]): void {
-		this.rSetVertices(vertices);
-		this.rSetEdges(edges);
+	removeVertex(vertex: IGraphVertex): void {
+		throw new NotImplementedError()
 	}
 
-	get vertices(): Set<GenericGraphVertex> {
-		return new Set(this.rVertices);
+	removeEdge(edge: IGraphEdge): void {
+		throw new NotImplementedError()
 	}
 
-	get edges(): Map<GraphVertexID, GenericGraphEdge[]> {
-		return new Map(this.rEdges);
+	setVertices(vertices: IGraphVertex[]): void {
+		this.rSetVertices(vertices)
 	}
 
-	get verticesAsList(): GenericGraphVertex[] {
-		return this.rVertices
+	setEdges(edges: [GraphVertexID, IGraphEdge[]][]): void {
+		this.rSetEdges(edges)
 	}
 
-	get edgesAsList(): [GraphVertexID, GenericGraphEdge[]][] {
-		return this.rEdges
+	set(vertices: IGraphVertex[], edges: [GraphVertexID, IGraphEdge[]][]): void {
+		this.setVertices(vertices)
+		this.setEdges(edges)
 	}
 
-	get props(): GenericGraphProperties {
-		return this.rProps
-	}
-
-	migrateFrom(storage: GenericGraphStorage): void {
-		this.set(storage.verticesAsList, storage.edgesAsList)
-		this.setProps(storage.props);
-	}
-
-	setProps(props: GenericGraphProperties): void {
+	setProps(props: GraphProperties): void {
 		this.rSetProps({ ...props })
 	}
 }

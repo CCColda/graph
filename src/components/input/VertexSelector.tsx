@@ -1,8 +1,8 @@
-import { GenericGraphVertex } from "@/logic/genericgraph/GenericGraph";
+import { IGraphVertex } from "@/logic/genericgraph/GraphTypes";
 import React from "react";
 
 export type VertexSelectorProps = {
-	vertices: GenericGraphVertex[];
+	vertices: IGraphVertex[];
 	value: string;
 	setValue: (new_value: string) => any;
 };

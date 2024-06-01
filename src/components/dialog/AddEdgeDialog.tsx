@@ -1,16 +1,16 @@
-import { useMemo, useState } from "react";
-import { GenericGraphEdge, GenericGraphVertex } from "@/logic/genericgraph/GenericGraph";
 import GraphError from "@/logic/genericgraph/GraphError";
+import { IGraphEdge, IGraphVertex } from "@/logic/genericgraph/GraphTypes";
 import Edge from "@/logic/graph/Edge";
+import { useState, useMemo } from "react";
 import VertexSelector from "../input/VertexSelector";
 
 export type EdgeSelection = [string, string];
 
 type AddEdgeDialogProps = {
-	vertices: GenericGraphVertex[];
+	vertices: IGraphVertex[];
 	selection: EdgeSelection;
 	setSelection: React.Dispatch<React.SetStateAction<EdgeSelection>>;
-	addEdge: (edge: GenericGraphEdge) => any;
+	addEdge: (edge: IGraphEdge) => any;
 };
 
 const AddEdgeDialog: React.FC<AddEdgeDialogProps> = ({ vertices, selection, setSelection, addEdge }) => {

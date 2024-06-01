@@ -1,10 +1,10 @@
 import Vertex from "@/logic/graph/Vertex";
 import { useMemo, useState } from "react";
 import PersistentInput from "../input/PersistentInput";
-import { GenericGraphVertex } from "@/logic/genericgraph/GenericGraph";
+import { IGraphVertex } from "@/logic/genericgraph/GraphTypes";
 
 type AddVertexDialogProps = {
-	vertices: GenericGraphVertex[];
+	vertices: IGraphVertex[];
 	num_vertices: number;
 	addVertex: (v: Vertex) => any;
 };

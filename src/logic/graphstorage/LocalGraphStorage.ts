@@ -1,51 +1,64 @@
-import { GenericGraph, GenericGraphEdge, GenericGraphProperties, GenericGraphStorage, GenericGraphVertex, GraphVertexID } from "../genericgraph/GenericGraph";
+import { SIMPLE_GRAPH } from "../genericgraph/GraphProperties";
+import { IGraphStorage, GraphVertexList, GraphEdgeList, GraphEdgeSet, IBaseGraphStorage } from "../genericgraph/GraphStorageInterfaces";
+import { IGraphVertex, IGraphEdge, GraphVertexID, GraphProperties } from "../genericgraph/GraphTypes";
 import NotImplementedError from "../graph/NotImplementedError";
+import ReadonlyGraphStorage from "./ReadonlyGraphStorage";
 
 export default class LocalGraphStorage
-	implements GenericGraphStorage {
+	extends ReadonlyGraphStorage
+	implements IGraphStorage {
 
-	vertices = new Set<GenericGraphVertex>()
-	edges = new Map<GraphVertexID, GenericGraphEdge[]>()
-	props = GenericGraph.SIMPLE_GRAPH
+	vertices: GraphVertexList = []
+	edges: GraphEdgeList = []
+	props = SIMPLE_GRAPH
 
-	get edgesAsList(): [GraphVertexID, GenericGraphEdge[]][] {
-		return Array.from(this.edges.entries());
+	get verticesAsSet() { return new Set(this.vertices); }
+	get edgesAsMap() { return new Map(this.edges); }
+
+	constructor() {
+		super()
 	}
 
-	get verticesAsList(): GenericGraphVertex[] {
-		return Array.from(this.vertices.values())
+	addVertex(vertex: IGraphVertex): void {
+		this.vertices.push(vertex)
 	}
 
-	addVertex(vertex: GenericGraphVertex): void {
-		this.vertices.add(vertex)
+	addEdge(edge: IGraphEdge): void {
+		this.edges.find(([vtxID]) => vtxID == edge.vertices[0].identifier)![1].push(edge)
 	}
 
-	addEdge(edge: GenericGraphEdge): void {
-		this.edges.get(edge.vertices[0].identifier)!.push(edge)
+	setEmptyEdgesFor(vertex: IGraphVertex): void {
+		const edgeSet: GraphEdgeSet | undefined = this.edges.find(([vtxID]) => vtxID == vertex.identifier);
+		if (edgeSet != undefined) {
+			edgeSet[1] = [];
+		}
+		else {
+			this.edges.push([`${vertex.identifier}`, []]);
+		}
 	}
 
-	removeEdge(edge: GenericGraphEdge): void {
+	removeEdge(edge: IGraphEdge): void {
 		throw new NotImplementedError()
 	}
 
-	removeVertex(vertex: GenericGraphVertex): void {
+	removeVertex(vertex: IGraphVertex): void {
 		throw new NotImplementedError()
 	}
 
-	setEmptyEdgesFor(vertex: GenericGraphVertex): void {
-		this.edges.set(vertex.identifier, []);
+	setVertices(vertices: GraphVertexList): void {
+		this.vertices = vertices
 	}
 
-	set(vertices: GenericGraphVertex[], edges: [GraphVertexID, GenericGraphEdge[]][]): void {
-		this.vertices = new Set([...vertices.map(v => v.deepCopy())]);
-		this.edges = new Map(edges.map(([id, v]) => ([`${id}`, v.map(w => w.deepCopy())])));
+	setEdges(edges: GraphEdgeList): void {
+		this.edges = edges
 	}
 
-	migrateFrom(storage: GenericGraphStorage): void {
-		this.set(storage.verticesAsList, storage.edgesAsList)
+	set(vertices: IGraphVertex[], edges: [GraphVertexID, IGraphEdge[]][]): void {
+		this.setVertices(vertices)
+		this.setEdges(edges)
 	}
 
-	setProps(props: GenericGraphProperties): void {
+	setProps(props: GraphProperties): void {
 		this.props = { ...props };
 	}
 }
