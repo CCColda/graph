@@ -38,10 +38,10 @@ export class Graph<S extends IGraphStorage> {
 		const [vtx1, vtx2] = edge.vertices;
 		if (this.hasVertex(vtx1) && this.hasVertex(vtx2)) {
 			if (!this.props.allowMultipleEdges) {
-				if (this.props.directed && this.hasEdge(edge)) {
+				if (this.props.directed && this.hasDirectedEdge(edge)) {
 					throw new GraphError(`Cannot add ${edge}; the graph is directed and doesn't allow multiple edges.`);
 				}
-				else if (!this.props.directed && this.hasDirectedEdge(edge)) {
+				else if (!this.props.directed && this.hasEdge(edge)) {
 					throw new GraphError(`Cannot add ${edge}; the graph doesn't allow multiple edges.`);
 				}
 			}
@@ -152,14 +152,14 @@ export class Graph<S extends IGraphStorage> {
 	hasDirectedEdge(edge: IGraphEdge) {
 		const [vtx1, vtx2] = edge.vertices;
 		if (this.hasVertex(vtx1) && this.hasVertex(vtx2)) {
-			return this.getOutgoingEdges(vtx1.identifier)?.some(e => e.identifier == edge.identifier) ?? false;
+			return this.getOutgoingEdges(vtx1.identifier)?.some(e => e.vertices[1].identifier == vtx2.identifier) ?? false;
 		}
 
 		return false;
 	}
 
 	hasEdge(edge: IGraphEdge) {
-		return this.props.directed ? this.hasDirectedEdge(edge) : this.hasDirectedEdge(edge) || this.hasDirectedEdge(edge.flipped);
+		return this.props.directed ? this.hasDirectedEdge(edge) : (this.hasDirectedEdge(edge) || this.hasDirectedEdge(edge.flipped));
 	}
 
 	getVertexByID(id: GraphVertexID) {

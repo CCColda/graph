@@ -37,7 +37,7 @@ strict graph G {
 }
 `;
 
-export default function Example1() {
+export default function Example2() {
 	const localGraph = new Graph(new LocalGraphStorage());
 
 	const dotGraph = parse(DOT)[0].children;
