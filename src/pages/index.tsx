@@ -6,11 +6,10 @@ import AddEdgeDialog, { EdgeSelection } from "@/components/dialog/AddEdgeDialog"
 import AddVertexDialog from "@/components/dialog/AddVertexDialog";
 import GraphPropDialog from "@/components/dialog/GraphPropDialog";
 import RunBFSDialog from "@/components/dialog/RunBFSDialog";
-import BFS, { BFSResult } from "@/logic/algorithm/BFS";
+import BFS from "@/logic/algorithm/BFS";
 import FullBFS from "@/logic/algorithm/FullBFS";
-import GreedyVertexChroma, { GreedyVertexChromaResult } from "@/logic/algorithm/GreedyVertexChroma";
+import GreedyVertexChroma from "@/logic/algorithm/GreedyVertexChroma";
 import { Graph } from "@/logic/genericgraph/GenericGraph";
-import { IGraphVertex } from "@/logic/genericgraph/GraphTypes";
 import Edge from "@/logic/graph/Edge";
 import Vertex from "@/logic/graph/Vertex";
 import LocalGraphStorage from "@/logic/graphstorage/LocalGraphStorage";
@@ -18,7 +17,7 @@ import useReactiveGraphStorage from "@/logic/graphstorage/useReactiveGraphStorag
 import { useEffect, useState } from "react";
 import useGraphAlgorithm from "@/logic/algorithm/useGraphAlgorithm";
 import ReactiveGraphStorage from "@/logic/graphstorage/ReactiveGraphStorage";
-import ConditionGuard from "@/components/ConditionGuard";
+import GraphInfoDialog from "@/components/dialog/GraphInfoDialog";
 
 export default function Home() {
   const storage = useReactiveGraphStorage();
@@ -29,7 +28,10 @@ export default function Home() {
   const bfsStorage = useReactiveGraphStorage();
   const bfsGraph = new Graph(bfsStorage);
   const bfsAlg = useGraphAlgorithm(BFS<ReactiveGraphStorage>, bfsGraph);
-  const fullBfsAlg = useGraphAlgorithm(FullBFS<ReactiveGraphStorage>, bfsGraph);
+
+  const fullBfsStorage = useReactiveGraphStorage();
+  const fullBfsGraph = new Graph(fullBfsStorage);
+  const fullBfsAlg = useGraphAlgorithm(FullBFS<ReactiveGraphStorage>, fullBfsGraph);
 
   const gvcStorage = useReactiveGraphStorage();
   const gvcGraph = new Graph(gvcStorage);
@@ -87,10 +89,10 @@ export default function Home() {
           addEdge={v => graph.addEdge(v)} />
         <RunBFSDialog
           vertices={graph.storage.vertices}
-          runBfs={startingVertex => { fullBfsAlg.finish(); bfsAlg.run(graph, startingVertex) }}
+          runBfs={startingVertex => { bfsAlg.run(graph, startingVertex) }}
         />
         <div className="flex flex-row justify-start">
-          <button onClick={_ => { bfsAlg.finish(); fullBfsAlg.run(graph) }}>Full BFS</button>
+          <button onClick={_ => { fullBfsAlg.run(graph) }}>Full BFS</button>
         </div>
         <div className="flex flex-row justify-start">
           <button onClick={_ => { gvcAlg.run(graph) }}>Greedy Vertex Chroma</button>
@@ -99,23 +101,17 @@ export default function Home() {
           <button onClick={_ => graph.invert((v1, v2) => new Edge(v1, v2))}>Invert</button>
         </div>
         <GraphPropDialog props={graph.props} setProps={new_props => graph.storage.setProps(new_props)} />
+        <GraphInfoDialog graph={graph} />
       </div>
       <GraphVis graph={graph} />
       <GraphGuard graph={bfsGraph}>
-        <BFSVis
-          graph={bfsGraph}
-          bfsResult={!bfsAlg.done ? bfsAlg.value : fullBfsAlg.value}
-          step={!bfsAlg.done ? () => bfsAlg.step() : () => fullBfsAlg.step()}
-          canStep={!bfsAlg.done || !fullBfsAlg.done}
-          close={!bfsAlg.done ? () => bfsAlg.finish() : () => fullBfsAlg.finish()} />
+        <BFSVis algorithm={bfsAlg} />
+      </GraphGuard>
+      <GraphGuard graph={fullBfsGraph}>
+        <BFSVis algorithm={fullBfsAlg} />
       </GraphGuard>
       <GraphGuard graph={gvcGraph}>
-        <GVCVis
-          graph={gvcGraph}
-          gvcResult={gvcAlg.value}
-          step={() => gvcAlg.step()}
-          canStep={!gvcAlg.done}
-          close={() => gvcAlg.finish()} />
+        <GVCVis algorithm={gvcAlg} />
       </GraphGuard>
     </main >
   );

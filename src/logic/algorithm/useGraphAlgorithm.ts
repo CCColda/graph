@@ -6,7 +6,7 @@ import useReactiveGraphStorage from "../graphstorage/useReactiveGraphStorage";
 import { IGraphStorage } from "../genericgraph/GraphStorageInterfaces";
 
 type GetArgs<T> = T extends (...args: infer R) => any ? R : never;
-type GetIterableReturnType<T> = T extends (...args: any[]) => IterableIterator<infer R> ? R : never;
+export type GetIterableReturnType<T> = T extends (...args: any[]) => IterableIterator<infer R> ? R : never;
 
 export type UseGraphAlgorithmResult<
 	T extends { graph: Graph<LocalGraphStorage> },
@@ -52,10 +52,10 @@ const useGraphAlgorithm = <
 				outGraph.cloneFrom(next.value.graph);
 			}
 
-			setValueAndDone({
-				value: !next.done ? next.value : value as typeof next.value,
+			setValueAndDone(({ value: oldValue }) => ({
+				value: (!next.done && !!next.value ? next.value : oldValue) as GetIterableReturnType<Alg> | null,
 				done: !!next.done
-			})
+			}))
 		},
 		step() {
 			if (iterable != null && !done) {
@@ -65,10 +65,10 @@ const useGraphAlgorithm = <
 					outGraph.cloneFrom(next.value.graph);
 				}
 
-				setValueAndDone({
-					value: !next.done ? next.value : value as typeof next.value,
+				setValueAndDone(({ value: oldValue }) => ({
+					value: (!next.done && !!next.value ? next.value : oldValue) as GetIterableReturnType<Alg> | null,
 					done: !!next.done
-				})
+				}))
 
 			}
 		},

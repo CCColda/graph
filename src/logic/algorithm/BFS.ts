@@ -9,6 +9,7 @@ export type BFSResult = {
 	distance: Map<GraphVertexID, number>;
 	previous: Map<GraphVertexID, GraphVertexID>;
 	graph: Graph<LocalGraphStorage>;
+	full: boolean;
 };
 
 export default function* BFS<S extends IGraphStorage>(
@@ -17,7 +18,8 @@ export default function* BFS<S extends IGraphStorage>(
 	const result: BFSResult = {
 		distance: new Map<GraphVertexID, number>(),
 		previous: new Map<GraphVertexID, GraphVertexID>(),
-		graph: new Graph(new LocalGraphStorage())
+		graph: new Graph(new LocalGraphStorage()),
+		full: false
 	};
 
 	result.distance.set(startingVertex.identifier, 0);

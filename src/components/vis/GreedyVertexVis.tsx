@@ -1,44 +1,41 @@
 import GraphVis from "./GraphVis";
 import ReactiveGraphStorage from "@/logic/graphstorage/ReactiveGraphStorage";
-import { GreedyVertexChromaResult } from "@/logic/algorithm/GreedyVertexChroma";
-import { Graph } from "@/logic/genericgraph/GenericGraph";
+import GreedyVertexChroma from "@/logic/algorithm/GreedyVertexChroma";
 import { AlgorithmVisProps } from "./AlgorithmVis";
 
-export type GVCVisProps = AlgorithmVisProps<{
-	gvcResult: Omit<GreedyVertexChromaResult, "graph"> | null;
-	graph: Graph<ReactiveGraphStorage>;
-}>;
+export type GVCVisProps = AlgorithmVisProps<typeof GreedyVertexChroma<ReactiveGraphStorage>>;
 
-const GVCVis: React.FC<GVCVisProps> = ({ gvcResult, graph, close, step, canStep }) => {
+const GVCVis: React.FC<GVCVisProps> = ({ algorithm }) => {
 	return <div className="w-full h-full flex flex-col align-start justify-stretch">
-		<GraphVis graph={graph} />
+		<span className="text-xl text-center">Greedy Vertex Chroma Algorithm</span>
+		<GraphVis graph={algorithm.graph} />
 		<div className="flex flex-col align-start justify-stretch">
 			<table>
 				<tbody>
 					<tr>
 						<td>Vertices</td>
-						{graph.vertices.map(v =>
+						{algorithm.graph.vertices.map(v =>
 							<td key={v.identifier}>{v.identifier}</td>
 						)}
 					</tr>
 					<tr>
 						<td>Order</td>
-						{graph.vertices.map(v =>
-							<td key={v.identifier}>{(gvcResult?.order.findIndex(id => v.identifier == id) ?? -1) + 1}</td>
+						{algorithm.graph.vertices.map(v =>
+							<td key={v.identifier}>{(algorithm.value?.order.findIndex(id => v.identifier == id) ?? -1) + 1}</td>
 						)}
 					</tr>
 					<tr>
 						<td>Chroma</td>
-						{graph.vertices.map(v =>
+						{algorithm.graph.vertices.map(v =>
 							<td key={v.identifier}>{v.chroma == 0 ? "*" : v.chroma}</td>
 						)}
 					</tr>
 				</tbody>
 			</table>
-			<span className="text-center">Chroma total: {gvcResult?.chromaUsed ?? "?"}</span>
-			<div className="flex flex-row align-middle justify-center" hidden={!canStep}>
-				<button onClick={_ => step()}>Step</button>
-				<button onClick={_ => close()}>Close</button>
+			<span className="text-center">Chroma total: χ(GVC) = {algorithm.value?.chromaUsed ?? "?"} {algorithm.done ? `⇒ χ ≤ ${algorithm.value?.chromaUsed ?? "?"}` : "(unfinished)"}</span>
+			<div className="flex flex-row align-middle justify-center">
+				<button onClick={_ => algorithm.step()} hidden={algorithm.done}>Step</button>
+				<button onClick={_ => algorithm.finish()}>Close</button>
 			</div>
 		</div>
 	</div>

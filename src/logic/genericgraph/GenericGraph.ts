@@ -14,7 +14,7 @@ export class Graph<S extends IGraphStorage> {
 
 	get numVertices() { return this.storage.vertices.length; }
 	get numEdges() {
-		return this.storage.edges.map(([_, edges]) => edges.length)
+		return this.storage.edges.map(([_, edges]) => edges.length).reduce((a, b) => a + b, 0);
 	}
 
 	get props() { return this.storage.props; }

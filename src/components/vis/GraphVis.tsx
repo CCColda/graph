@@ -1,6 +1,6 @@
 import { Graph } from "@/logic/genericgraph/GenericGraph";
 import { IGraphStorage } from "@/logic/genericgraph/GraphStorageInterfaces";
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 
 import { Network } from "vis-network";
 import { DataSet } from "vis-data";
@@ -10,6 +10,22 @@ type GraphVisProps<S extends IGraphStorage> = {
 }
 
 const GraphVis = <S extends IGraphStorage>(props: React.PropsWithChildren<GraphVisProps<S>>) => {
+	const [windowSize, setWindowSize] = useState<[number, number]>([0, 0]);
+
+	useEffect(() => {
+		const resize = (ev: UIEvent) => {
+			setWindowSize([window.innerWidth, window.innerHeight]);
+		};
+
+		window.addEventListener("resize", resize);
+
+		return () => window.removeEventListener("resize", resize)
+	}, [windowSize]);
+
+	useEffect(() => {
+		setWindowSize([window.innerWidth, window.innerHeight]);
+	}, []);
+
 	const visNetworkNodes = useMemo(
 		() => {
 			return new DataSet(
@@ -82,7 +98,7 @@ const GraphVis = <S extends IGraphStorage>(props: React.PropsWithChildren<GraphV
 			network.moveTo({ scale: 0.5 });
 			return () => network.destroy();
 		}
-	}, [ref, visNetworkNodes, visNetworkEdges]);
+	}, [ref, visNetworkNodes, visNetworkEdges, windowSize]);
 
 	return <div ref={ref} className="w-full h-full">
 	</div>;

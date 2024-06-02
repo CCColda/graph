@@ -11,7 +11,8 @@ export default function* FullBFS<S extends IGraphStorage>(
 	const result: BFSResult = {
 		distance: new Map<GraphVertexID, number>(),
 		previous: new Map<GraphVertexID, GraphVertexID>(),
-		graph: new Graph(new LocalGraphStorage())
+		graph: new Graph(new LocalGraphStorage()),
+		full: true
 	};
 
 	const mergeMaps = <K, V>(to: Map<K, V>, from: Map<K, V>) =>
