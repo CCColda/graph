@@ -1,4 +1,4 @@
-import { HamiltonCycleViaDirac, HamiltonCycleViaOre, HamiltonResult, HamiltonViaDegreePermutation } from "@/logic/algorithm/Hamilton";
+import { HamiltonCircuitViaDirac, HamiltonCircuitViaOre, HamiltonResult, HamiltonViaDegreePermutation } from "@/logic/algorithm/Hamilton";
 import IsGraphProper from "@/logic/algorithm/IsGraphProper";
 import { Graph } from "@/logic/genericgraph/Graph";
 import { GraphEdgeFactory, IGraphVertex } from "@/logic/genericgraph/GraphTypes";
@@ -27,20 +27,20 @@ const GraphInfoDialog: React.FC<{ graph: Graph<ReactiveGraphStorage> }> = ({ gra
 			.reduce((a, b) => a + b, 0),
 		[degrees]);
 
-	const hasEulerCycle = useMemo(() =>
+	const hasEulerCircuit = useMemo(() =>
 		degrees.map(v => v.deg % 2).filter(v => v != 0).length == 0,
 		[degrees]);
 
 	const hasEulerWalk = useMemo(() =>
-		hasEulerCycle || degrees.map(v => v.deg % 2).filter(v => v == 1).length == 2,
-		[degrees, hasEulerCycle])
+		hasEulerCircuit || degrees.map(v => v.deg % 2).filter(v => v == 1).length == 2,
+		[degrees, hasEulerCircuit])
 
 	const [isProper, setIsProper] = useState<boolean | null>(null);
 	const [hamiltonDirac, setHamiltonDirac] = useState<boolean | null>(null);
 	const [hamiltonOre, setHamiltonOre] = useState<boolean | null>(null);
 	const [hamiltonPerm, setHamiltonPerm] = useState<HamiltonResult | null>(null);
 	const hamilton = useMemo(
-		() => hamiltonDirac || hamiltonOre ? "cycle" : (hamiltonPerm ?? "unknown"),
+		() => hamiltonDirac || hamiltonOre ? "circuit" : (hamiltonPerm ?? "unknown"),
 		[hamiltonDirac, hamiltonOre, hamiltonPerm]);
 
 	const edgeFactory: GraphEdgeFactory = (v1, v2) => new Edge(v1, v2)
@@ -50,12 +50,12 @@ const GraphInfoDialog: React.FC<{ graph: Graph<ReactiveGraphStorage> }> = ({ gra
 	}
 
 	const checkHamiltonDirac = () => {
-		setHamiltonDirac(HamiltonCycleViaDirac(graph));
+		setHamiltonDirac(HamiltonCircuitViaDirac(graph));
 	}
 
 
 	const checkHamiltonOre = () => {
-		setHamiltonOre(HamiltonCycleViaOre(graph, edgeFactory));
+		setHamiltonOre(HamiltonCircuitViaOre(graph, edgeFactory));
 	}
 
 	const checkHamiltonPerm = () => {
@@ -138,7 +138,7 @@ const GraphInfoDialog: React.FC<{ graph: Graph<ReactiveGraphStorage> }> = ({ gra
 				</tr>
 				<tr>
 					<td>Has Euler-cycle (if proper)</td>
-					<td>{hasEulerCycle ? "yes" : "no"}</td>
+					<td>{hasEulerCircuit ? "yes" : "no"}</td>
 				</tr>
 				<tr>
 					<td>Has Hamilton-path</td>
