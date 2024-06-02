@@ -1,9 +1,9 @@
-import Page from "@/components/Page";
-import { Graph } from "@/logic/genericgraph/Graph";
-import Edge from "@/logic/graph/Edge";
-import Vertex from "@/logic/graph/Vertex";
-import LocalGraphStorage from "@/logic/graphstorage/LocalGraphStorage";
+"use client"
+
+import { StringifiedDOTToSearchParams, StringifyDOT } from "@/logic/dot/StringifyDOT";
 import parse from "dotparser";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const DOT = `
 strict graph G {
@@ -34,27 +34,15 @@ strict graph G {
     e -- h
     
     g -- h
-}
-`;
+}`;
 
 export default function Example2() {
-	const localGraph = new Graph(new LocalGraphStorage());
+    const router = useRouter();
 
-	const dotGraph = parse(DOT)[0].children;
+    useEffect(() => {
+        router.push(`/dot?` + StringifiedDOTToSearchParams(StringifyDOT(parse(DOT))));
+    }, [router])
 
-	for (const stmt of dotGraph) {
-		if (stmt.type == "node_stmt") {
-			localGraph.addVertex(new Vertex(`${stmt.node_id.id}`));
-		}
-		else if (stmt.type == "edge_stmt") {
-			for (let i = 1; i < stmt.edge_list.length; i++) {
-				localGraph.addEdge(new Edge(
-					localGraph.getVertexByID(`${stmt.edge_list[i - 1].id}`)!,
-					localGraph.getVertexByID(`${stmt.edge_list[i].id}`)!
-				))
-			}
-		}
-	}
 
-	return <Page startingGraph={localGraph} />
+    return <></>
 }

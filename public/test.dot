@@ -1,0 +1,29 @@
+strict graph G {
+    a
+    b
+    c
+    d
+    e
+    f
+    g
+    h
+    
+    a -- c
+    a -- d
+    a -- f
+    
+    b -- e
+    b -- g
+    b -- h
+    
+    c -- f
+    c -- e
+    
+    d -- e
+    d -- f
+    
+    e -- g
+    e -- h
+    
+    g -- h
+}
