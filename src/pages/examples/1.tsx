@@ -1,5 +1,5 @@
 import Page from "@/components/Page";
-import { Graph } from "@/logic/genericgraph/GenericGraph";
+import { Graph } from "@/logic/genericgraph/Graph";
 import Edge from "@/logic/graph/Edge";
 import Vertex from "@/logic/graph/Vertex";
 import LocalGraphStorage from "@/logic/graphstorage/LocalGraphStorage";

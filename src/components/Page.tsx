@@ -2,7 +2,7 @@ import BFS from "@/logic/algorithm/BFS";
 import FullBFS from "@/logic/algorithm/FullBFS";
 import GreedyVertexChroma from "@/logic/algorithm/GreedyVertexChroma";
 import useGraphAlgorithm from "@/logic/algorithm/useGraphAlgorithm";
-import { Graph } from "@/logic/genericgraph/GenericGraph";
+import { Graph } from "@/logic/genericgraph/Graph";
 import Edge from "@/logic/graph/Edge";
 import LocalGraphStorage from "@/logic/graphstorage/LocalGraphStorage";
 import ReactiveGraphStorage from "@/logic/graphstorage/ReactiveGraphStorage";

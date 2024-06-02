@@ -28,8 +28,8 @@ export interface IGraphStorage
 	addVertex(vertex: IGraphVertex): void
 	addEdge(edge: IGraphEdge): void
 	setEmptyEdgesFor(vertex: IGraphVertex): void
-	removeVertex(vertex: IGraphVertex): void
-	removeEdge(edge: IGraphEdge): void
+	removeVertexByID(vertexID: GraphVertexID): void
+	removeEdgeByID(edgeID: GraphEdgeID): void
 
 	setVertices(vertices: GraphVertexList): void
 	setEdges(edges: GraphEdgeList): void

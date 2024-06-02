@@ -1,4 +1,4 @@
-import { Graph } from "@/logic/genericgraph/GenericGraph";
+import { Graph } from "@/logic/genericgraph/Graph";
 import { IGraphStorage } from "@/logic/genericgraph/GraphStorageInterfaces";
 import { useMemo, useRef, useEffect, useState } from "react";
 

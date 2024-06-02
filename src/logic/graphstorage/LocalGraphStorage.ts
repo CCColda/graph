@@ -1,6 +1,6 @@
 import { SIMPLE_GRAPH } from "../genericgraph/GraphProperties";
 import { IGraphStorage, GraphVertexList, GraphEdgeList, GraphEdgeSet, IBaseGraphStorage } from "../genericgraph/GraphStorageInterfaces";
-import { IGraphVertex, IGraphEdge, GraphVertexID, GraphProperties } from "../genericgraph/GraphTypes";
+import { IGraphVertex, IGraphEdge, GraphVertexID, GraphProperties, GraphEdgeID } from "../genericgraph/GraphTypes";
 import NotImplementedError from "../graph/NotImplementedError";
 import ReadonlyGraphStorage from "./ReadonlyGraphStorage";
 
@@ -37,12 +37,15 @@ export default class LocalGraphStorage
 		}
 	}
 
-	removeEdge(edge: IGraphEdge): void {
+	removeEdgeByID(edge: GraphEdgeID): void {
 		throw new NotImplementedError()
 	}
 
-	removeVertex(vertex: IGraphVertex): void {
-		throw new NotImplementedError()
+	removeVertexByID(vertex: GraphVertexID): void {
+		this.vertices.splice(this.vertices.findIndex(v => v.identifier == vertex), 1)
+		this.edges.splice(this.edges.findIndex(([v]) => v == vertex), 1)
+
+		this.edges = this.edges.map(([v, edges]) => [v, edges.filter(w => w.vertices[1].identifier != vertex)])
 	}
 
 	setVertices(vertices: GraphVertexList): void {

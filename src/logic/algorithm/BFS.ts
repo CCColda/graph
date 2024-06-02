@@ -1,4 +1,4 @@
-import { Graph } from "../genericgraph/GenericGraph";
+import { Graph } from "../genericgraph/Graph";
 import { IGraphStorage } from "../genericgraph/GraphStorageInterfaces";
 import { GraphVertexID, IGraphVertex } from "../genericgraph/GraphTypes";
 import Edge from "../graph/Edge";

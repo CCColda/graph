@@ -1,5 +1,5 @@
 import LocalGraphStorage from "@/logic/graphstorage/LocalGraphStorage";
-import { Graph } from "@/logic/genericgraph/GenericGraph";
+import { Graph } from "@/logic/genericgraph/Graph";
 import { GetIterableReturnType, UseGraphAlgorithmResult } from "@/logic/algorithm/useGraphAlgorithm";
 import { IGraphStorage } from "@/logic/genericgraph/GraphStorageInterfaces";
 import ReactiveGraphStorage from "@/logic/graphstorage/ReactiveGraphStorage";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Graph } from "../genericgraph/GenericGraph";
+import { Graph } from "../genericgraph/Graph";
 import LocalGraphStorage from "../graphstorage/LocalGraphStorage";
 import ReactiveGraphStorage from "../graphstorage/ReactiveGraphStorage";
 import useReactiveGraphStorage from "../graphstorage/useReactiveGraphStorage";

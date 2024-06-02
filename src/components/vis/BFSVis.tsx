@@ -2,7 +2,7 @@ import BFS, { BFSResult } from "@/logic/algorithm/BFS";
 import GraphVis from "./GraphVis";
 import ReactiveGraphStorage from "@/logic/graphstorage/ReactiveGraphStorage";
 import { AlgorithmVisProps } from "./AlgorithmVis";
-import { Graph } from "@/logic/genericgraph/GenericGraph";
+import { Graph } from "@/logic/genericgraph/Graph";
 import { iterateMap, iterateReduce } from "@/logic/iterable/FunctionalIterable";
 
 export type BFSVisProps = AlgorithmVisProps<typeof BFS<ReactiveGraphStorage>>

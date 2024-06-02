@@ -1,6 +1,6 @@
 import ReactiveGraphStorage from "@/logic/graphstorage/ReactiveGraphStorage";
 import ConditionGuard from "./ConditionGuard";
-import { Graph } from "@/logic/genericgraph/GenericGraph";
+import { Graph } from "@/logic/genericgraph/Graph";
 
 export type GraphGuardProps = React.PropsWithChildren<{
 	graph: Graph<ReactiveGraphStorage>;

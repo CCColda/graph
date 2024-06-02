@@ -59,6 +59,11 @@ export class Graph<S extends IGraphStorage> {
 		}
 	}
 
+	removeVertexByID(vtx: GraphVertexID) {
+		if (this.getVertexByID(vtx) != null)
+			this.storage.removeVertexByID(vtx)
+	}
+
 	invert(edgeFactory: GraphEdgeFactory) {
 		const newEdgeList = this.storage.edges.map(([vtxID, edges]) => {
 			let edgeList: IGraphEdge[] = [];

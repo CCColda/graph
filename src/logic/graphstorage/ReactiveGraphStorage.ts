@@ -1,5 +1,5 @@
 import { GraphVertexList, GraphEdgeList, IGraphStorage, GraphEdgeSet, IBaseGraphStorage } from "../genericgraph/GraphStorageInterfaces";
-import { GraphProperties, IGraphVertex, IGraphEdge, GraphVertexID } from "../genericgraph/GraphTypes";
+import { GraphProperties, IGraphVertex, IGraphEdge, GraphVertexID, GraphEdgeID } from "../genericgraph/GraphTypes";
 import NotImplementedError from "../graph/NotImplementedError";
 import ReadonlyGraphStorage from "./ReadonlyGraphStorage";
 
@@ -87,11 +87,18 @@ export default class ReactiveGraphStorage
 		});
 	}
 
-	removeVertex(vertex: IGraphVertex): void {
-		throw new NotImplementedError()
+	removeVertexByID(vertex: GraphVertexID): void {
+		const newVertices = this.vertices.filter(v => v.identifier != vertex)
+		const newEdges = this.edges
+			.filter(([v]) => v != vertex)
+			.map(([v, edges]) => [
+				v, edges.filter(w => w.vertices[1].identifier != vertex)
+			] as GraphEdgeSet)
+
+		this.set(newVertices, newEdges)
 	}
 
-	removeEdge(edge: IGraphEdge): void {
+	removeEdgeByID(edge: GraphEdgeID): void {
 		throw new NotImplementedError()
 	}
 

@@ -16,6 +16,32 @@ export function iterateHead<T>(
 	return output;
 }
 
+export function iterateGetLast<T>(
+	iterable: IterableIterator<T>,
+	maxIterations: number = 1000
+): T | null {
+	let result = iterable.next();
+	let prevResult = result;
+
+	let i = 0;
+
+	while (!result.done && i < maxIterations) {
+		prevResult = result;
+		result = iterable.next();
+
+		i++;
+	}
+
+	if (iterable.return)
+		iterable.return();
+
+	if (!!result.done) {
+		return prevResult.value;
+	}
+
+	return null;
+}
+
 export function iterateForEach<T>(
 	iterable: IterableIterator<T>,
 	callback: (value: T, index: number) => any
