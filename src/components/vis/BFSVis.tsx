@@ -37,6 +37,7 @@ const BFSVis: React.FC<BFSVisProps> = ({ algorithm }) => {
 			<span>Longest path: {algorithm.value ? iterateReduce(algorithm.value.distance.values(), ((a, b) => a > b ? a : b), 0) : "?"}</span>
 			<span>Components: {algorithm.value ? algorithm.graph.vertices.filter(v => !algorithm.value!.previous.has(v.identifier)).length : "?"}</span>
 			<div className="flex flex-row align-middle justify-center">
+				<button onClick={_ => algorithm.stepToEnd()} hidden={algorithm.done}>Step to end</button>
 				<button onClick={_ => algorithm.step()} hidden={algorithm.done}>Step</button>
 				<button onClick={_ => algorithm.finish()}>Close</button>
 			</div>

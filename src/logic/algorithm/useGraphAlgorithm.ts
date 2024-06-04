@@ -18,6 +18,7 @@ export type UseGraphAlgorithmResult<
 	done: boolean;
 	run: (...args: GetArgs<Alg>) => void;
 	step: () => void;
+	stepToEnd: () => void;
 	finish: () => void;
 };
 
@@ -70,6 +71,24 @@ const useGraphAlgorithm = <
 					done: !!next.done
 				}))
 
+			}
+		},
+		stepToEnd() {
+			if (iterable != null && !done) {
+				let result = iterable.next();
+				let prevValue: GetIterableReturnType<Alg> = value!;
+
+				while (!result.done) {
+					prevValue = result.value as GetIterableReturnType<Alg>;
+					result = iterable.next()
+				}
+
+				outGraph.cloneFrom(prevValue.graph);
+
+				setValueAndDone({
+					value: prevValue,
+					done: true
+				})
 			}
 		},
 		finish() {

@@ -34,6 +34,7 @@ const GVCVis: React.FC<GVCVisProps> = ({ algorithm }) => {
 			</table>
 			<span className="text-center">Chroma total: χ(GVC) = {algorithm.value?.chromaUsed ?? "?"} {algorithm.done ? `⇒ χ ≤ ${algorithm.value?.chromaUsed ?? "?"}` : "(unfinished)"}</span>
 			<div className="flex flex-row align-middle justify-center">
+				<button onClick={_ => algorithm.stepToEnd()} hidden={algorithm.done}>Step to end</button>
 				<button onClick={_ => algorithm.step()} hidden={algorithm.done}>Step</button>
 				<button onClick={_ => algorithm.finish()}>Close</button>
 			</div>
